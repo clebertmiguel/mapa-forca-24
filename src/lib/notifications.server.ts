@@ -3,7 +3,7 @@
  */
 import { Resend } from 'resend';
 
-const ADMIN_EMAIL = 'clebertmiguel@gmail.com'; // E-mail de destino padrão conforme solicitado
+const ADMIN_EMAIL = '24bpmidesenvolvimento@gmail.com'; // E-mail verificado na conta Resend
 
 export async function sendNewUserAdminNotification(user: {
   nome: string;
