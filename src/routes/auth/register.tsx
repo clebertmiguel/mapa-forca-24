@@ -77,15 +77,24 @@ function RegisterPage() {
             <Controller
               name="re"
               control={control}
-              render={({ field }) => (
+              render={({ field: { onChange, onBlur, value, ref } }) => (
                 <InputMask
-                  mask="999999-a"
+                  mask="999999-*"
                   alwaysShowMask={false}
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
                 >
-                  {((inputProps: any) => <Input id="re" {...inputProps} />) as any}
+                  {(inputProps: any) => (
+                    <Input 
+                      id="re" 
+                      {...inputProps} 
+                      ref={(el: any) => {
+                        inputProps.ref(el);
+                        ref(el);
+                      }} 
+                    />
+                  )}
                 </InputMask>
               )}
             />
@@ -103,16 +112,25 @@ function RegisterPage() {
             <Controller
               name="telefone"
               control={control}
-              render={({ field }) => (
+              render={({ field: { onChange, onBlur, value, ref } }) => (
                 <InputMask
-                  mask={field.value.replace(/\D/g, '').length > 10 ? "(99) 99999-9999" : "(99) 9999-9999"}
+                  mask={value.replace(/\D/g, '').length > 10 ? "(99) 99999-9999" : "(99) 9999-9999"}
                   alwaysShowMask={false}
                   maskPlaceholder={null}
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
                 >
-                  {((inputProps: any) => <Input id="telefone" {...inputProps} />) as any}
+                  {(inputProps: any) => (
+                    <Input 
+                      id="telefone" 
+                      {...inputProps} 
+                      ref={(el: any) => {
+                        inputProps.ref(el);
+                        ref(el);
+                      }} 
+                    />
+                  )}
                 </InputMask>
               )}
             />
