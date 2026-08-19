@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { registerUser } from "@/lib/auth.functions";
+import InputMask from "react-input-mask-next";
 import pmLogo from "@/assets/pm-logo.png.asset.json";
 
 const schema = z.object({
@@ -44,8 +45,15 @@ function RegisterPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      nome: "",
+      re: "",
+      email: "",
+      telefone: "",
+      senha: "",
+    }
   });
 
   return (
@@ -66,7 +74,31 @@ function RegisterPage() {
 
           <div className="space-y-2">
             <Label htmlFor="re">RE</Label>
-            <Input id="re" {...register("re")} />
+            <Controller
+              name="re"
+              control={control}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <InputMask
+                  mask="999999-*"
+                  alwaysShowMask={false}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                >
+                  {/* @ts-ignore */}
+                  {(inputProps: any) => (
+                    <Input 
+                      id="re" 
+                      {...inputProps} 
+                      ref={(el: any) => {
+                        inputProps.ref(el);
+                        ref(el);
+                      }} 
+                    />
+                  )}
+                </InputMask>
+              )}
+            />
             {errors.re && <p className="text-xs text-destructive">{errors.re.message}</p>}
           </div>
 
@@ -78,7 +110,32 @@ function RegisterPage() {
 
           <div className="space-y-2">
             <Label htmlFor="telefone">Telefone</Label>
-            <Input id="telefone" {...register("telefone")} />
+            <Controller
+              name="telefone"
+              control={control}
+              render={({ field: { onChange, onBlur, value, ref } }) => (
+                <InputMask
+                  mask={value.replace(/\D/g, '').length > 10 ? "(99) 99999-9999" : "(99) 9999-9999"}
+                  alwaysShowMask={false}
+                  maskPlaceholder={null}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                >
+                  {/* @ts-ignore */}
+                  {(inputProps: any) => (
+                    <Input 
+                      id="telefone" 
+                      {...inputProps} 
+                      ref={(el: any) => {
+                        inputProps.ref(el);
+                        ref(el);
+                      }} 
+                    />
+                  )}
+                </InputMask>
+              )}
+            />
             {errors.telefone && <p className="text-xs text-destructive">{errors.telefone.message}</p>}
           </div>
 
