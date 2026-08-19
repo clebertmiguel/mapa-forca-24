@@ -2,7 +2,7 @@
  * Server-only helpers para chamar a API do Google Sheets via Lovable Gateway.
  * Toda persistência da aplicação ocorre nesta planilha.
  */
-export const SPREADSHEET_ID = "1SwrfUR0WYhIgHjxO0lFEtdaIy6rFjQ3U2kh6jYEGgD8";
+export const SPREADSHEET_ID = "1emo82uBDY9juLQPJozZHcIukj4hXD2UbnPPKCyVhk_Y";
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4";
 const SHEET_RECORDS = "Página1";
 
