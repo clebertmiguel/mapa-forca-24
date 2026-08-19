@@ -82,7 +82,7 @@ async function readSingleColumn(
   startRow = 2,
 ): Promise<string[]> {
   try {
-    const rows = await readRange(`${sheet}!A${startRow}:A`);
+    const rows = await readRange(`'${sheet}'!A${startRow}:A`);
     return rows
       .map((r) => (r[0] ?? "").toString().trim())
       .filter(Boolean);
@@ -96,7 +96,7 @@ async function readPairColumns(
   startRow = 2,
 ): Promise<Array<[string, string]>> {
   try {
-    const rows = await readRange(`${sheet}!A${startRow}:B`);
+    const rows = await readRange(`'${sheet}'!A${startRow}:B`);
     return rows
       .map((r) => [
         (r[0] ?? "").toString().trim(),
