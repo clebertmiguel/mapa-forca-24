@@ -85,6 +85,7 @@ function RegisterPage() {
                   onChange={onChange}
                   onBlur={onBlur}
                 >
+                  {/* @ts-ignore */}
                   {(inputProps: any) => (
                     <Input 
                       id="re" 
@@ -121,6 +122,7 @@ function RegisterPage() {
                   onChange={onChange}
                   onBlur={onBlur}
                 >
+                  {/* @ts-ignore */}
                   {(inputProps: any) => (
                     <Input 
                       id="telefone" 
