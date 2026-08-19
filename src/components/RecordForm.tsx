@@ -346,7 +346,7 @@ export function RecordForm({ defaultDate, onSuccess, initial }: Props) {
           disabled={mutation.isPending}
           className="bg-pm-navy text-primary-foreground hover:bg-pm-navy-strong"
         >
-          {mutation.isPending ? "Salvando..." : isEdit ? "Atualizar" : "Salvar na planilha"}
+          {mutation.isPending ? "Salvando..." : isEdit ? "Atualizar" : "SALVAR"}
         </Button>
       </div>
     </form>
