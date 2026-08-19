@@ -169,24 +169,6 @@ export function RecordForm({ defaultDate, onSuccess, initial }: Props) {
     <>
     <form
       onSubmit={form.handleSubmit((v) => {
-        const vtrNorm = v.vtr.trim().toLowerCase();
-        const dataNorm = v.data.trim();
-        const dup = (existing as Array<{ id?: string; data?: string; vtr?: string }>).some(
-          (r) =>
-            r.id !== initial?.id &&
-            (r.data ?? "").trim() === dataNorm &&
-            (r.vtr ?? "").trim().toLowerCase() === vtrNorm,
-        );
-        if (dup) {
-          setDupDialog({ vtr: v.vtr, data: v.data });
-          form.setError("vtr", { type: "manual", message: "VTR já cadastrada para esta data" });
-          form.setFocus("vtr");
-          toast.error(`⚠️ VTR ${v.vtr} já cadastrada para ${v.data}`, {
-            description: "Verifique a VTR informada ou edite o registro existente.",
-            duration: 8000,
-          });
-          return;
-        }
         mutation.mutate(v);
       })}
       className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4"
