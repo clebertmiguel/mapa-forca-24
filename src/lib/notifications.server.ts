@@ -3,7 +3,7 @@
  */
 import { Resend } from 'resend';
 
-const ADMIN_EMAIL = 'clebertmiguel@gmail.com'; // E-mail de destino padrão conforme solicitado
+const ADMIN_EMAIL = 'clebertmiguel@gmail.com'; // E-mail final de destino
 
 export async function sendNewUserAdminNotification(user: {
   nome: string;
@@ -23,7 +23,7 @@ export async function sendNewUserAdminNotification(user: {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Mapa Força <notifications@lovable.app>',
+      from: 'onboarding@resend.dev',
       to: [ADMIN_EMAIL],
       subject: 'Novo Usuário Cadastrado no Sistema',
       html: `
