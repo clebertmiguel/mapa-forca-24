@@ -1,5 +1,6 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter, redirect } from "@tanstack/react-router";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { getSession } from "@/lib/auth.functions";
 import { useMemo, useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,14 @@ export const Route = createFileRoute("/relatorio-visualizar")({
       },
     ],
   }),
+  beforeLoad: async ({ context }) => {
+    const session = await context.queryClient.ensureQueryData({
+      queryKey: ["session"],
+      queryFn: () => getSession(),
+    });
+    if (!session) throw redirect({ to: "/auth/login" });
+    return { session };
+  },
   loader: ({ context }) => context.queryClient.ensureQueryData(recordsQuery),
   component: VisualizarRelatorio,
 });

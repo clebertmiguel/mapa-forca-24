@@ -28,6 +28,8 @@ import {
 import { createRecord, updateRecord, getLookups, getRecords } from "@/lib/sheets.functions";
 import type { RecordRow } from "@/lib/sheets.server";
 import { getDeviceId } from "@/lib/device";
+import { getSession } from "@/lib/auth.functions";
+import { useQuery } from "@tanstack/react-query";
 
 import { toast } from "sonner";
 
@@ -64,14 +66,18 @@ export function RecordForm({ defaultDate, onSuccess, initial }: Props) {
     queryKey: ["records"],
     queryFn: () => getRecords(),
   });
+  const { data: session } = useQuery({
+    queryKey: ["session"],
+    queryFn: () => getSession(),
+  });
   const [dupDialog, setDupDialog] = useState<{ vtr: string; data: string } | null>(null);
   const create = useServerFn(createRecord);
   const update = useServerFn(updateRecord);
   const mutation = useMutation({
     mutationFn: (v: FormValues) =>
       isEdit
-        ? update({ data: { ...v, deviceId: getDeviceId(), id: initial!.id } })
-        : create({ data: { ...v, deviceId: getDeviceId() } }),
+        ? update({ data: { ...v, deviceId: getDeviceId(), id: initial!.id, createdByEmail: initial?.createdByEmail || session?.email } })
+        : create({ data: { ...v, deviceId: getDeviceId(), createdByEmail: session?.email } }),
 
     onSuccess: (_res, vars) => onSuccess(vars.vtr),
     onError: (e: Error, vars) => {

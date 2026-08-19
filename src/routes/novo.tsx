@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { getSession } from "@/lib/auth.functions";
 import { AppNav } from "@/components/AppNav";
 import { Card } from "@/components/ui/card";
 import { RecordForm } from "@/components/RecordForm";
@@ -21,6 +22,14 @@ export const Route = createFileRoute("/novo")({
       { name: "description", content: "Cadastrar novo registro no Mapa Força." },
     ],
   }),
+  beforeLoad: async ({ context }) => {
+    const session = await context.queryClient.ensureQueryData({
+      queryKey: ["session"],
+      queryFn: () => getSession(),
+    });
+    if (!session) throw redirect({ to: "/auth/login" });
+    return { session };
+  },
   loader: ({ context }) => context.queryClient.ensureQueryData(lookupsQuery),
   component: NovoPage,
 });
