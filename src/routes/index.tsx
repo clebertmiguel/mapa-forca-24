@@ -254,9 +254,11 @@ function Dashboard() {
               variant="outline"
               size="icon"
               title="Atualizar"
-              onClick={() => {
-                queryClient.invalidateQueries({ queryKey: ["records"] });
-              }}
+               onClick={() => {
+                 queryClient.invalidateQueries({ queryKey: ["records"] });
+                 setLastUpdated(new Date());
+               }}
+
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
