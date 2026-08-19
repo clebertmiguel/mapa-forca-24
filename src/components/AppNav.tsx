@@ -36,7 +36,7 @@ export function AppNav() {
     { to: "/relatorio-visualizar", label: "Visualizar Relatório", show: true },
     { to: "/admin/usuarios", label: "Gerenciar Usuários", show: session?.group === "Administrador" },
   ].filter(it => it.show);
-
+  return (
     <header className="sticky top-0 z-40 border-b border-pm-gold/40 bg-pm-navy text-primary-foreground shadow-md">
       <div className="mx-auto flex max-w-7xl items-center gap-6 px-4 py-3">
         <div className="flex items-center gap-3 font-semibold tracking-wide">
