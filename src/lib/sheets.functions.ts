@@ -60,6 +60,8 @@ const recordInput = z.object({
 export const createRecord = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => recordInput.parse(data))
   .handler(async ({ data }) => {
+    // VTR não precisa mais ser chave única
+    /*
     const vtrNorm = data.vtr.trim().toLowerCase();
     const existing = await fetchAllRecords();
     const dup = existing.find(
@@ -72,6 +74,7 @@ export const createRecord = createServerFn({ method: "POST" })
         `Já existe um registro cadastrado para a VTR ${data.vtr} na data ${data.data}. Verifique os dados e informe uma VTR diferente ou edite o registro existente.`,
       );
     }
+    */
     const id =
       typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
