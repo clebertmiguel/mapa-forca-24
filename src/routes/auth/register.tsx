@@ -45,8 +45,15 @@ function RegisterPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      nome: "",
+      re: "",
+      email: "",
+      telefone: "",
+      senha: "",
+    }
   });
 
   return (
