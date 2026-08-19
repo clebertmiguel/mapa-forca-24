@@ -81,5 +81,21 @@ export const registerUser = createServerFn({ method: "POST" })
     };
 
     await appendUser(newUser);
+
+    // Enviar notificação assíncrona para o admin (fire-and-forget)
+    try {
+      const { sendNewUserAdminNotification } = await import("./notifications.server");
+      // Não damos await aqui para não travar o cadastro se o e-mail demorar
+      sendNewUserAdminNotification({
+        nome: newUser.nome,
+        email: newUser.email,
+        re: newUser.re,
+        grupo: newUser.grupo,
+      }).catch(err => console.error("Falha silenciosa na notificação:", err));
+    } catch (err) {
+      console.error("Erro ao carregar módulo de notificação:", err);
+    }
+
     return { ok: true };
+
   });
