@@ -24,6 +24,7 @@ export const HEADERS = [
   "tpd",
   "createdByDevice",
   "updatedAt",
+  "createdByEmail",
 ] as const;
 
 

@@ -54,6 +54,7 @@ const recordInput = z.object({
   auxiliares: z.string().optional().default(""),
   tpd: z.enum(["SIM", "NAO"]),
   deviceId: z.string().min(1, "Identificador do dispositivo ausente"),
+  createdByEmail: z.string().optional(),
 });
 
 export const createRecord = createServerFn({ method: "POST" })
@@ -94,6 +95,7 @@ export const createRecord = createServerFn({ method: "POST" })
       tpd: data.tpd,
       createdByDevice: data.deviceId,
       updatedAt: now,
+      createdByEmail: data.createdByEmail ?? "",
     };
     await appendRecord(row);
     return { ok: true as const, id };
