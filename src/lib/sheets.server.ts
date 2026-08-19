@@ -130,6 +130,26 @@ const uniqSorted = (arr: string[]) =>
 
 export const CIA_ORDER = ["1ª CIA PM", "2ª CIA PM", "3ª CIA PM", "4ª CIA PM", "EM"];
 
+export const CIDADE_ORDER = [
+  "SJBVISTA",
+  "DIVINOLANDIA",
+  "APRATA",
+  "SGRAMA",
+  "CBRANCA",
+  "SCPALMEIRAS",
+  "TAMBAU",
+  "ITOBI",
+  "MOCOCA",
+  "SJPARDO",
+  "CACONDE",
+  "TAPIRATIBA",
+  "ESPINHAL",
+  "AGUAI",
+  "VGSUL",
+  "SAJARDIM",
+];
+
+
 export async function fetchLookups(): Promise<Lookups> {
   const [vtr, mod, grad, cia, cidPairs, all] = await Promise.all([
     readSingleColumn("VTR"),
