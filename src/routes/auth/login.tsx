@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -35,21 +34,34 @@ function LoginPage() {
   const loginFn = useServerFn(login);
 
   const mutation = useMutation({
-    mutationFn: (data: FormValues) => loginFn({ data }),
-    onSuccess: () => {
+    mutationFn: (data: FormValues) => {
+      console.log("Mutation start with data:", data);
+      return loginFn({ data });
+    },
+    onSuccess: (session) => {
+      console.log("Login success:", session);
       toast.success("Bem-vindo!");
-      queryClient.invalidateQueries({ queryKey: ["session"] });
-      navigate({ to: "/" });
+      queryClient.setQueryData(["session"], session);
+      navigate({ to: "/", replace: true });
     },
     onError: (e: Error) => {
-      console.error("Login error:", e);
+      console.error("Login mutation error:", e);
       toast.error(e.message || "Erro ao realizar login");
     },
   });
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
   });
+
+  const onSubmit = (data: FormValues) => {
+    console.log("onSubmit manual trigger calling mutation.mutate");
+    mutation.mutate(data);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-pm-navy px-4">
@@ -60,20 +72,35 @@ function LoginPage() {
           <p className="text-sm text-muted-foreground mt-1">Entre com suas credenciais</p>
         </div>
 
-        <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
+        <form 
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
-            <Input id="email" type="email" {...register("email")} />
+            <Input 
+              id="email" 
+              type="text" 
+              {...register("email")} 
+            />
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password">Senha</Label>
-            <Input id="password" type="password" {...register("password")} />
+            <Input 
+              id="password" 
+              type="password" 
+              {...register("password")} 
+            />
             {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
           </div>
 
-          <Button type="submit" className="w-full bg-pm-navy hover:bg-pm-navy-strong" disabled={mutation.isPending}>
+          <Button 
+            type="submit"
+            className="w-full bg-pm-navy hover:bg-pm-navy-strong" 
+            disabled={mutation.isPending}
+          >
             {mutation.isPending ? "Entrando..." : "Entrar"}
           </Button>
         </form>
@@ -88,3 +115,4 @@ function LoginPage() {
     </div>
   );
 }
+
