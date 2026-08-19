@@ -23,7 +23,7 @@ export async function sendNewUserAdminNotification(user: {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Mapa Força <notifications@lovable.app>',
+      from: 'onboarding@resend.dev',
       to: [ADMIN_EMAIL],
       subject: 'Novo Usuário Cadastrado no Sistema',
       html: `
