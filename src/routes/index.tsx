@@ -113,9 +113,22 @@ function Dashboard() {
   const [editRow, setEditRow] = useState<RecordRow | null>(null);
   const [deviceId, setDeviceId] = useState("");
   const [confirmDel, setConfirmDel] = useState<RecordRow | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   useEffect(() => setDeviceId(getDeviceId()), []);
 
+
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("Auto-refreshing records...");
+      queryClient.invalidateQueries({ queryKey: ["records"] });
+      setLastUpdated(new Date());
+    }, 120000); // 2 minutos
+
+    return () => clearInterval(interval);
+  }, [queryClient]);
+
   const delFn = useServerFn(deleteRecord);
   const delMutation = useMutation({
     mutationFn: (id: string) => delFn({ data: { id, deviceId } }),
@@ -123,9 +136,11 @@ function Dashboard() {
       toast.success("Registro excluído.");
       setConfirmDel(null);
       queryClient.invalidateQueries({ queryKey: ["records"] });
+      setLastUpdated(new Date());
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
 
   const filtered = useMemo(() => {
@@ -209,7 +224,13 @@ function Dashboard() {
                   Amanhã
                 </button>
               </div>
+
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/80">
+                <RefreshCw className="h-2.5 w-2.5 animate-spin-slow" />
+                <span>Atualizado às {lastUpdated.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
             </div>
+
             <p className="text-sm text-muted-foreground">
               Exibindo registros de {dayFilter === "hoje" ? "hoje" : "amanhã"} ({filtered.length}{" "}
               {filtered.length === 1 ? "registro" : "registros"}).
@@ -234,9 +255,11 @@ function Dashboard() {
               variant="outline"
               size="icon"
               title="Atualizar"
-              onClick={() => {
-                queryClient.invalidateQueries({ queryKey: ["records"] });
-              }}
+               onClick={() => {
+                 queryClient.invalidateQueries({ queryKey: ["records"] });
+                 setLastUpdated(new Date());
+               }}
+
             >
               <RefreshCw className="h-4 w-4" />
             </Button>

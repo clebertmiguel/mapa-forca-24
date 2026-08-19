@@ -63,7 +63,9 @@
   --color-pm-navy-strong: var(--pm-navy-strong);
   --color-pm-gold: var(--pm-gold);
   --color-pm-gray: var(--pm-gray);
+  --animate-spin-slow: spin 3s linear infinite;
 }
+
 
 :root {
   --radius: 0.75rem;
