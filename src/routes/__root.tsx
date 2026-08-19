@@ -79,8 +79,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "MAPA FORÇA DIÁRIO DO 24º BPM/I" },
+      { title: "Mapa Força Diário · 24º BPM/I" },
+      { name: "description", content: "Sistema de Gestão de Mapa Força Diário do 24º BPM/I." },
       { name: "author", content: "Lovable" },
       { property: "og:title", content: "Lovable App" },
       { property: "og:description", content: "MAPA FORÇA DIÁRIO DO 24º BPM/I" },

@@ -2,7 +2,7 @@
  * Server-only helpers para chamar a API do Google Sheets via Lovable Gateway.
  * Toda persistência da aplicação ocorre nesta planilha.
  */
-const SPREADSHEET_ID = "1SwrfUR0WYhIgHjxO0lFEtdaIy6rFjQ3U2kh6jYEGgD8";
+export const SPREADSHEET_ID = "1SwrfUR0WYhIgHjxO0lFEtdaIy6rFjQ3U2kh6jYEGgD8";
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4";
 const SHEET_RECORDS = "Página1";
 
@@ -24,6 +24,7 @@ export const HEADERS = [
   "tpd",
   "createdByDevice",
   "updatedAt",
+  "createdByEmail",
 ] as const;
 
 
@@ -43,7 +44,7 @@ function authHeaders() {
   };
 }
 
-async function gatewayFetch(path: string, init?: RequestInit) {
+export async function gatewayFetch(path: string, init?: RequestInit) {
   const res = await fetch(`${GATEWAY}${path}`, {
     ...init,
     headers: { ...authHeaders(), ...(init?.headers || {}) },
@@ -55,7 +56,7 @@ async function gatewayFetch(path: string, init?: RequestInit) {
   return res.json();
 }
 
-async function readRange(range: string): Promise<string[][]> {
+export async function readRange(range: string): Promise<string[][]> {
   const data = await gatewayFetch(
     `/spreadsheets/${SPREADSHEET_ID}/values/${range}`,
   );

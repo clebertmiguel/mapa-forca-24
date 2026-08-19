@@ -1,4 +1,5 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { getSession } from '@/lib/auth.functions'
 import { useSuspenseQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -56,6 +57,14 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  beforeLoad: async ({ context }) => {
+    const session = await context.queryClient.ensureQueryData({
+      queryKey: ["session"],
+      queryFn: () => getSession(),
+    });
+    if (!session) throw redirect({ to: "/auth/login" });
+    return { session };
+  },
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(recordsQuery);
     context.queryClient.ensureQueryData(lookupsQuery);
@@ -86,7 +95,15 @@ function tomorrowISO(): string {
 }
 
 function Dashboard() {
-  const { data: records } = useSuspenseQuery(recordsQuery);
+  const { session } = Route.useRouteContext();
+  const { data: allRecords } = useSuspenseQuery(recordsQuery);
+
+  const records = useMemo(() => {
+    if (session.group === "Usuario") {
+      return allRecords.filter(r => r.createdByEmail === session.email);
+    }
+    return allRecords;
+  }, [allRecords, session]);
   const today = todayISO();
   const tomorrow = tomorrowISO();
   const [dayFilter, setDayFilter] = useState<"hoje" | "amanha">("hoje");
@@ -370,7 +387,10 @@ function Dashboard() {
                               —
                             </span>
                           )}
-                          {deviceId && r.createdByDevice === deviceId ? (
+                          {(session.group === "Administrador" || 
+                            session.group === "Oficiais" || 
+                            session.group === "Supervisor" || 
+                            r.createdByEmail === session.email) ? (
                             <>
                               <Button
                                 size="icon"
@@ -393,7 +413,7 @@ function Dashboard() {
                             </>
                           ) : (
                             <span
-                              title="Este registro foi cadastrado por outro dispositivo e não pode ser editado nesta instalação da aplicação."
+                              title="Você não tem permissão para editar este registro."
                               className="inline-flex h-7 w-7 items-center justify-center text-muted-foreground/60"
                             >
                               <Lock className="h-3.5 w-3.5" />
