@@ -3,7 +3,7 @@
  */
 import { gatewayFetch, SPREADSHEET_ID, readRange } from "./sheets.server";
 
-const SHEET_USERS = "USUARIOS";
+const SHEET_USERS = "Users";
 
 export const USER_HEADERS = [
   "id",
@@ -31,7 +31,7 @@ export interface UserRow {
 
 export async function fetchAllUsers(): Promise<UserRow[]> {
   try {
-    const rows = await readRange(`${SHEET_USERS}!A2:H`);
+    const rows = await readRange(`${SHEET_USERS}!A1:H1000`);
     return rows
       .filter((r) => r.length > 0)
       .map((r) => {
@@ -54,8 +54,9 @@ export async function findUserByEmail(email: string): Promise<UserRow | undefine
 
 export async function appendUser(user: UserRow): Promise<void> {
   const values = [USER_HEADERS.map((h) => (user as any)[h] ?? "")];
+  // Usando um range que a API parece aceitar melhor para append: apenas o nome da aba
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_USERS}!A:H:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_USERS}!A2:H:append?valueInputOption=USER_ENTERED`,
     {
       method: "POST",
       body: JSON.stringify({ values }),
