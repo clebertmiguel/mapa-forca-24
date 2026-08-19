@@ -31,13 +31,13 @@ export interface UserRow {
 
 export async function fetchAllUsers(): Promise<UserRow[]> {
   try {
-    const rows = await readRange(`${SHEET_USERS}!A1:H1000`);
+    const rows = await readRange(`${SHEET_USERS}!A2:H1000`);
     return rows
-      .filter((r) => r.length > 0)
+      .filter((r) => r.length > 0 && (r[3] ?? "").toString().trim() !== "")
       .map((r) => {
         const obj = {} as UserRow;
         USER_HEADERS.forEach((h, i) => {
-          (obj as any)[h] = (r[i] ?? "").toString();
+          (obj as any)[h] = (r[i] ?? "").toString().trim();
         });
         return obj;
       });
@@ -49,7 +49,8 @@ export async function fetchAllUsers(): Promise<UserRow[]> {
 
 export async function findUserByEmail(email: string): Promise<UserRow | undefined> {
   const all = await fetchAllUsers();
-  return all.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  const target = email.trim().toLowerCase();
+  return all.find((u) => u.email.toLowerCase() === target);
 }
 
 export async function appendUser(user: UserRow): Promise<void> {
