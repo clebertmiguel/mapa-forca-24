@@ -111,12 +111,8 @@ export const deleteRecord = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const rec = await findRecordById(data.id);
     if (!rec) throw new Error("Registro não encontrado.");
-    if ((rec.createdByDevice ?? "") !== data.deviceId) {
-      throw new Error(
-        "Este registro foi cadastrado por outro dispositivo e não pode ser editado nesta instalação da aplicação.",
-      );
-    }
     await deleteRecordById(data.id);
+    return { ok: true as const };
     return { ok: true as const };
   });
 
@@ -127,11 +123,6 @@ export const updateRecord = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const rec = await findRecordById(data.id);
     if (!rec) throw new Error("Registro não encontrado.");
-    if ((rec.createdByDevice ?? "") !== data.deviceId) {
-      throw new Error(
-        "Este registro foi cadastrado por outro dispositivo e não pode ser editado nesta instalação da aplicação.",
-      );
-    }
     // valida duplicidade (ignorando o próprio)
     const vtrNorm = data.vtr.trim().toLowerCase();
     const all = await fetchAllRecords();
