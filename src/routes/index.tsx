@@ -223,13 +223,14 @@ function Dashboard() {
                 >
                   Amanhã
                 </button>
-            <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground/80 mt-0.5">
-              <RefreshCw className="h-2.5 w-2.5 animate-spin-slow" />
-              Atualizado às {lastUpdated.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}
-            </p>
-          </div>
+              </div>
 
+              <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/80">
+                <RefreshCw className="h-2.5 w-2.5 animate-spin-slow" />
+                <span>Atualizado às {lastUpdated.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
             </div>
+
             <p className="text-sm text-muted-foreground">
               Exibindo registros de {dayFilter === "hoje" ? "hoje" : "amanhã"} ({filtered.length}{" "}
               {filtered.length === 1 ? "registro" : "registros"}).
