@@ -85,17 +85,10 @@ function RegisterPage() {
                   onChange={onChange}
                   onBlur={onBlur}
                 >
-                  {/* @ts-ignore */}
-                  {(inputProps: any) => (
-                    <Input 
-                      id="re" 
-                      {...inputProps} 
-                      ref={(el: any) => {
-                        inputProps.ref(el);
-                        ref(el);
-                      }} 
-                    />
-                  )}
+                  <Input 
+                    id="re"
+                    ref={ref}
+                  />
                 </InputMask>
               )}
             />
@@ -122,17 +115,10 @@ function RegisterPage() {
                   onChange={onChange}
                   onBlur={onBlur}
                 >
-                  {/* @ts-ignore */}
-                  {(inputProps: any) => (
-                    <Input 
-                      id="telefone" 
-                      {...inputProps} 
-                      ref={(el: any) => {
-                        inputProps.ref(el);
-                        ref(el);
-                      }} 
-                    />
-                  )}
+                  <Input 
+                    id="telefone"
+                    ref={ref}
+                  />
                 </InputMask>
               )}
             />
