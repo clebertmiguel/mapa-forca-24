@@ -80,7 +80,7 @@ function RegisterPage() {
               render={({ field }) => (
                 <InputMask
                   mask="999999-a"
-                  maskChar={null}
+                  alwaysShowMask={false}
                   value={field.value}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
