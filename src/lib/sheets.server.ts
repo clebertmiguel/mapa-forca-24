@@ -4,7 +4,7 @@
  */
 export const SPREADSHEET_ID = "1emo82uBDY9juLQPJozZHcIukj4hXD2UbnPPKCyVhk_Y";
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4";
-const SHEET_RECORDS = "Página1";
+const SHEET_RECORDS = "Records";
 
 export const HEADERS = [
   "id",
@@ -64,7 +64,7 @@ export async function readRange(range: string): Promise<string[][]> {
 }
 
 export async function fetchAllRecords(): Promise<RecordRow[]> {
-  const rows = await readRange(`${SHEET_RECORDS}!A2:Q`);
+  const rows = await readRange(`${SHEET_RECORDS}!A1:Q1000`);
   return rows
     .filter((r) => r.length > 0)
     .map((r) => {
@@ -82,7 +82,7 @@ async function readSingleColumn(
   startRow = 2,
 ): Promise<string[]> {
   try {
-    const rows = await readRange(`${sheet}!A${startRow}:A`);
+    const rows = await readRange(`'${sheet}'!A${startRow}:A`);
     return rows
       .map((r) => (r[0] ?? "").toString().trim())
       .filter(Boolean);
@@ -96,7 +96,7 @@ async function readPairColumns(
   startRow = 2,
 ): Promise<Array<[string, string]>> {
   try {
-    const rows = await readRange(`${sheet}!A${startRow}:B`);
+    const rows = await readRange(`'${sheet}'!A${startRow}:B`);
     return rows
       .map((r) => [
         (r[0] ?? "").toString().trim(),
@@ -189,7 +189,7 @@ export async function fetchLookups(): Promise<Lookups> {
 export async function appendRecord(row: RecordRow): Promise<void> {
   const values = [HEADERS.map((h) => row[h] ?? "")];
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A:Q:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A2:Q:append?valueInputOption=USER_ENTERED`,
     {
       method: "POST",
       body: JSON.stringify({ values }),
@@ -204,7 +204,7 @@ export async function deleteRecordById(id: string): Promise<boolean> {
   if (idx === -1) return false;
   const sheetRow = idx + 2; // +1 cabeçalho, +1 base 1
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A${sheetRow}:Q${sheetRow}:clear`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/'${SHEET_RECORDS}'!A${sheetRow}:Q${sheetRow}:clear`,
     { method: "POST", body: "{}" },
   );
   return true;
@@ -222,7 +222,7 @@ export async function updateRecordById(id: string, row: RecordRow): Promise<bool
   const sheetRow = idx + 2;
   const values = [HEADERS.map((h) => row[h] ?? "")];
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A${sheetRow}:Q${sheetRow}?valueInputOption=USER_ENTERED`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/'${SHEET_RECORDS}'!A${sheetRow}:Q${sheetRow}?valueInputOption=USER_ENTERED`,
     { method: "PUT", body: JSON.stringify({ values }) },
   );
   return true;
