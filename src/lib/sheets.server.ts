@@ -64,7 +64,7 @@ export async function readRange(range: string): Promise<string[][]> {
 }
 
 export async function fetchAllRecords(): Promise<RecordRow[]> {
-  const rows = await readRange(`${SHEET_RECORDS}!A1:Q1000`);
+  const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
   return rows
     .filter((r) => r.length > 0)
     .map((r) => {
@@ -189,7 +189,7 @@ export async function fetchLookups(): Promise<Lookups> {
 export async function appendRecord(row: RecordRow): Promise<void> {
   const values = [HEADERS.map((h) => row[h] ?? "")];
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A2:Q:append?valueInputOption=USER_ENTERED`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A2:R:append?valueInputOption=USER_ENTERED`,
     {
       method: "POST",
       body: JSON.stringify({ values }),
