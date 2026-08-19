@@ -60,6 +60,8 @@ const recordInput = z.object({
 export const createRecord = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => recordInput.parse(data))
   .handler(async ({ data }) => {
+    // VTR não precisa mais ser chave única
+    /*
     const vtrNorm = data.vtr.trim().toLowerCase();
     const existing = await fetchAllRecords();
     const dup = existing.find(
@@ -72,6 +74,7 @@ export const createRecord = createServerFn({ method: "POST" })
         `Já existe um registro cadastrado para a VTR ${data.vtr} na data ${data.data}. Verifique os dados e informe uma VTR diferente ou edite o registro existente.`,
       );
     }
+    */
     const id =
       typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
@@ -123,7 +126,8 @@ export const updateRecord = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const rec = await findRecordById(data.id);
     if (!rec) throw new Error("Registro não encontrado.");
-    // valida duplicidade (ignorando o próprio)
+    // VTR não precisa mais ser chave única
+    /*
     const vtrNorm = data.vtr.trim().toLowerCase();
     const all = await fetchAllRecords();
     const dup = all.find(
@@ -137,6 +141,7 @@ export const updateRecord = createServerFn({ method: "POST" })
         `Já existe um registro cadastrado para a VTR ${data.vtr} na data ${data.data}.`,
       );
     }
+    */
     const updated: RecordRow = {
       ...rec,
       cia: data.cia,
