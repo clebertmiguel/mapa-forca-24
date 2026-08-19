@@ -99,11 +99,8 @@ function Dashboard() {
   const { data: allRecords } = useSuspenseQuery(recordsQuery);
 
   const records = useMemo(() => {
-    if (session.group === "Usuario") {
-      return allRecords.filter(r => r.createdByEmail === session.email);
-    }
     return allRecords;
-  }, [allRecords, session]);
+  }, [allRecords]);
   const today = todayISO();
   const tomorrow = tomorrowISO();
   const [dayFilter, setDayFilter] = useState<"hoje" | "amanha">("hoje");
