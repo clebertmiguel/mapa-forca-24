@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { registerUser } from "@/lib/auth.functions";
-import InputMask from "react-input-mask-next";
 import pmLogo from "@/assets/pm-logo.png.asset.json";
 
 const schema = z.object({
@@ -45,7 +44,7 @@ function RegisterPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       nome: "",
@@ -55,6 +54,29 @@ function RegisterPage() {
       senha: "",
     }
   });
+
+  const reValue = watch("re");
+  const telValue = watch("telefone");
+
+  const formatRE = (val: string) => {
+    const clean = val.replace(/\D/g, "").substring(0, 7);
+    if (clean.length > 6) {
+      return `${clean.substring(0, 6)}-${clean.substring(6)}`;
+    }
+    return clean;
+  };
+
+  const formatTel = (val: string) => {
+    const clean = val.replace(/\D/g, "").substring(0, 11);
+    if (clean.length > 10) {
+      return `(${clean.substring(0, 2)}) ${clean.substring(2, 7)}-${clean.substring(7)}`;
+    } else if (clean.length > 6) {
+      return `(${clean.substring(0, 2)}) ${clean.substring(2, 6)}-${clean.substring(6)}`;
+    } else if (clean.length > 2) {
+      return `(${clean.substring(0, 2)}) ${clean.substring(2)}`;
+    }
+    return clean;
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-pm-navy px-4 py-8">
@@ -74,23 +96,12 @@ function RegisterPage() {
 
           <div className="space-y-2">
             <Label htmlFor="re">RE</Label>
-            <Controller
-              name="re"
-              control={control}
-              render={({ field: { onChange, onBlur, value, ref } }) => (
-                <InputMask
-                  mask="999999-*"
-                  alwaysShowMask={false}
-                  value={value}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                >
-                  <Input 
-                    id="re"
-                    ref={ref}
-                  />
-                </InputMask>
-              )}
+            <Input 
+              id="re" 
+              {...register("re")} 
+              value={reValue}
+              onChange={(e) => setValue("re", formatRE(e.target.value))}
+              placeholder="999999-X"
             />
             {errors.re && <p className="text-xs text-destructive">{errors.re.message}</p>}
           </div>
@@ -103,24 +114,12 @@ function RegisterPage() {
 
           <div className="space-y-2">
             <Label htmlFor="telefone">Telefone</Label>
-            <Controller
-              name="telefone"
-              control={control}
-              render={({ field: { onChange, onBlur, value, ref } }) => (
-                <InputMask
-                  mask={value.replace(/\D/g, '').length > 10 ? "(99) 99999-9999" : "(99) 9999-9999"}
-                  alwaysShowMask={false}
-                  maskPlaceholder={null}
-                  value={value}
-                  onChange={onChange}
-                  onBlur={onBlur}
-                >
-                  <Input 
-                    id="telefone"
-                    ref={ref}
-                  />
-                </InputMask>
-              )}
+            <Input 
+              id="telefone" 
+              {...register("telefone")} 
+              value={telValue}
+              onChange={(e) => setValue("telefone", formatTel(e.target.value))}
+              placeholder="(99) 99999-9999"
             />
             {errors.telefone && <p className="text-xs text-destructive">{errors.telefone.message}</p>}
           </div>
