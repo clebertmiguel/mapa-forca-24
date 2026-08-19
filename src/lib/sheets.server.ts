@@ -64,7 +64,7 @@ export async function readRange(range: string): Promise<string[][]> {
 }
 
 export async function fetchAllRecords(): Promise<RecordRow[]> {
-  const rows = await readRange(`${SHEET_RECORDS}!A1:Q1000`);
+  const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
   return rows
     .filter((r) => r.length > 0)
     .map((r) => {
@@ -189,7 +189,7 @@ export async function fetchLookups(): Promise<Lookups> {
 export async function appendRecord(row: RecordRow): Promise<void> {
   const values = [HEADERS.map((h) => row[h] ?? "")];
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A2:Q:append?valueInputOption=USER_ENTERED`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A2:R:append?valueInputOption=USER_ENTERED`,
     {
       method: "POST",
       body: JSON.stringify({ values }),
@@ -204,7 +204,7 @@ export async function deleteRecordById(id: string): Promise<boolean> {
   if (idx === -1) return false;
   const sheetRow = idx + 2; // +1 cabeçalho, +1 base 1
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/'${SHEET_RECORDS}'!A${sheetRow}:Q${sheetRow}:clear`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A${sheetRow}:R${sheetRow}:clear`,
     { method: "POST", body: "{}" },
   );
   return true;
@@ -222,7 +222,7 @@ export async function updateRecordById(id: string, row: RecordRow): Promise<bool
   const sheetRow = idx + 2;
   const values = [HEADERS.map((h) => row[h] ?? "")];
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/'${SHEET_RECORDS}'!A${sheetRow}:Q${sheetRow}?valueInputOption=USER_ENTERED`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A${sheetRow}:R${sheetRow}?valueInputOption=USER_ENTERED`,
     { method: "PUT", body: JSON.stringify({ values }) },
   );
   return true;
