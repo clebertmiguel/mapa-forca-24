@@ -113,7 +113,9 @@ function Dashboard() {
   const [editRow, setEditRow] = useState<RecordRow | null>(null);
   const [deviceId, setDeviceId] = useState("");
   const [confirmDel, setConfirmDel] = useState<RecordRow | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   useEffect(() => setDeviceId(getDeviceId()), []);
+
 
   const queryClient = useQueryClient();
   const delFn = useServerFn(deleteRecord);
