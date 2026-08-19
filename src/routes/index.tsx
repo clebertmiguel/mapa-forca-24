@@ -118,6 +118,17 @@ function Dashboard() {
 
 
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("Auto-refreshing records...");
+      queryClient.invalidateQueries({ queryKey: ["records"] });
+      setLastUpdated(new Date());
+    }, 120000); // 2 minutos
+
+    return () => clearInterval(interval);
+  }, [queryClient]);
+
   const delFn = useServerFn(deleteRecord);
   const delMutation = useMutation({
     mutationFn: (id: string) => delFn({ data: { id, deviceId } }),
@@ -125,9 +136,11 @@ function Dashboard() {
       toast.success("Registro excluído.");
       setConfirmDel(null);
       queryClient.invalidateQueries({ queryKey: ["records"] });
+      setLastUpdated(new Date());
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
 
 
   const filtered = useMemo(() => {
