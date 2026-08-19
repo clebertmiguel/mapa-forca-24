@@ -204,7 +204,7 @@ export async function deleteRecordById(id: string): Promise<boolean> {
   if (idx === -1) return false;
   const sheetRow = idx + 2; // +1 cabeçalho, +1 base 1
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/'${SHEET_RECORDS}'!A${sheetRow}:Q${sheetRow}:clear`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A${sheetRow}:R${sheetRow}:clear`,
     { method: "POST", body: "{}" },
   );
   return true;
@@ -222,7 +222,7 @@ export async function updateRecordById(id: string, row: RecordRow): Promise<bool
   const sheetRow = idx + 2;
   const values = [HEADERS.map((h) => row[h] ?? "")];
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/'${SHEET_RECORDS}'!A${sheetRow}:Q${sheetRow}?valueInputOption=USER_ENTERED`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A${sheetRow}:R${sheetRow}?valueInputOption=USER_ENTERED`,
     { method: "PUT", body: JSON.stringify({ values }) },
   );
   return true;
