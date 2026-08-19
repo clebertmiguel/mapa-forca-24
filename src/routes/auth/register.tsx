@@ -100,7 +100,22 @@ function RegisterPage() {
 
           <div className="space-y-2">
             <Label htmlFor="telefone">Telefone</Label>
-            <Input id="telefone" {...register("telefone")} />
+            <Controller
+              name="telefone"
+              control={control}
+              render={({ field }) => (
+                <InputMask
+                  mask={field.value.replace(/\D/g, '').length > 10 ? "(99) 99999-9999" : "(99) 9999-9999"}
+                  alwaysShowMask={false}
+                  maskPlaceholder={null}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                >
+                  {((inputProps: any) => <Input id="telefone" {...inputProps} />) as any}
+                </InputMask>
+              )}
+            />
             {errors.telefone && <p className="text-xs text-destructive">{errors.telefone.message}</p>}
           </div>
 
