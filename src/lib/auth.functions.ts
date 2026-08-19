@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { findUserByEmail, appendUser, type UserRow, type UserGroup } from "./auth.server";
 import { setCookie, getCookie, deleteCookie } from "@tanstack/react-start/server";
+import bcrypt from "bcryptjs";
 
 const SESSION_COOKIE = "app_session";
 
@@ -20,7 +21,13 @@ export const login = createServerFn({ method: "POST" })
     const user = await findUserByEmail(data.email);
     if (!user) throw new Error("Usuário não encontrado.");
     if (user.ativo !== "SIM") throw new Error("Usuário inativo.");
-    if (user.senha !== data.password) throw new Error("Senha incorreta.");
+    
+    // Verifica senha criptografada (ou texto plano se for usuário legado/seed manual)
+    const isMatch = user.senha?.startsWith("$2a$") || user.senha?.startsWith("$2b$")
+      ? await bcrypt.compare(data.password, user.senha)
+      : user.senha === data.password;
+
+    if (!isMatch) throw new Error("Senha incorreta.");
 
     const session: SessionData = {
       userId: user.id,
@@ -69,13 +76,16 @@ export const registerUser = createServerFn({ method: "POST" })
     const existing = await findUserByEmail(data.email);
     if (existing) throw new Error("E-mail já cadastrado.");
 
+    const hashedEmail = data.email.toLowerCase().trim();
+    const hashedPassword = await bcrypt.hash(data.senha, 10);
+
     const newUser: UserRow = {
       id: crypto.randomUUID(),
       nome: data.nome,
       re: data.re,
-      email: data.email,
+      email: hashedEmail,
       telefone: data.telefone,
-      senha: data.senha,
+      senha: hashedPassword,
       grupo: "Usuario",
       ativo: "SIM",
     };
