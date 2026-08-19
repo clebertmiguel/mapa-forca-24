@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { findUserByEmail, appendUser, type UserRow, type UserGroup } from "./auth.server";
-import { setCookie, getCookie, deleteCookie } from "vinxi/http";
+import { setCookie, getCookie, deleteCookie } from "@tanstack/react-start/server";
 
 const SESSION_COOKIE = "app_session";
 
