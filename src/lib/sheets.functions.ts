@@ -126,7 +126,8 @@ export const updateRecord = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const rec = await findRecordById(data.id);
     if (!rec) throw new Error("Registro não encontrado.");
-    // valida duplicidade (ignorando o próprio)
+    // VTR não precisa mais ser chave única
+    /*
     const vtrNorm = data.vtr.trim().toLowerCase();
     const all = await fetchAllRecords();
     const dup = all.find(
@@ -140,6 +141,7 @@ export const updateRecord = createServerFn({ method: "POST" })
         `Já existe um registro cadastrado para a VTR ${data.vtr} na data ${data.data}.`,
       );
     }
+    */
     const updated: RecordRow = {
       ...rec,
       cia: data.cia,
