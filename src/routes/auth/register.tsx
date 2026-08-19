@@ -74,7 +74,21 @@ function RegisterPage() {
 
           <div className="space-y-2">
             <Label htmlFor="re">RE</Label>
-            <Input id="re" {...register("re")} />
+            <Controller
+              name="re"
+              control={control}
+              render={({ field }) => (
+                <InputMask
+                  mask="999999-a"
+                  maskChar={null}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                >
+                  {((inputProps: any) => <Input id="re" {...inputProps} />) as any}
+                </InputMask>
+              )}
+            />
             {errors.re && <p className="text-xs text-destructive">{errors.re.message}</p>}
           </div>
 
