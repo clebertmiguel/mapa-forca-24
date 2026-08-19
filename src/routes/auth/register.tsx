@@ -100,7 +100,10 @@ function RegisterPage() {
               id="re" 
               {...register("re")} 
               value={reValue}
-              onChange={(e) => setValue("re", formatRE(e.target.value))}
+              onChange={(e) => {
+                const formatted = formatRE(e.target.value);
+                setValue("re", formatted);
+              }}
               placeholder="999999-X"
             />
             {errors.re && <p className="text-xs text-destructive">{errors.re.message}</p>}
@@ -118,7 +121,10 @@ function RegisterPage() {
               id="telefone" 
               {...register("telefone")} 
               value={telValue}
-              onChange={(e) => setValue("telefone", formatTel(e.target.value))}
+              onChange={(e) => {
+                const formatted = formatTel(e.target.value);
+                setValue("telefone", formatted);
+              }}
               placeholder="(99) 99999-9999"
             />
             {errors.telefone && <p className="text-xs text-destructive">{errors.telefone.message}</p>}
