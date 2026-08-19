@@ -41,7 +41,10 @@ function LoginPage() {
       queryClient.invalidateQueries({ queryKey: ["session"] });
       navigate({ to: "/" });
     },
-    onError: (e: Error) => toast.error(e.message),
+    onError: (e: Error) => {
+      console.error("Login error:", e);
+      toast.error(e.message || "Erro ao realizar login");
+    },
   });
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
