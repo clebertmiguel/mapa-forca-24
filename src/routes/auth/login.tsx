@@ -72,7 +72,10 @@ function LoginPage() {
           <p className="text-sm text-muted-foreground mt-1">Entre com suas credenciais</p>
         </div>
 
-        <div className="space-y-4">
+        <form 
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
             <Input 
@@ -94,19 +97,13 @@ function LoginPage() {
           </div>
 
           <Button 
-            type="button"
+            type="submit"
             className="w-full bg-pm-navy hover:bg-pm-navy-strong" 
             disabled={mutation.isPending}
-            onClick={(e) => {
-              console.log("Button clicked!");
-              e.preventDefault();
-              e.stopPropagation();
-              handleSubmit(onSubmit)(e);
-            }}
           >
             {mutation.isPending ? "Entrando..." : "Entrar"}
           </Button>
-        </div>
+        </form>
 
         <div className="mt-6 text-center text-sm">
           <span className="text-muted-foreground">Não tem uma conta? </span>
@@ -118,3 +115,4 @@ function LoginPage() {
     </div>
   );
 }
+
