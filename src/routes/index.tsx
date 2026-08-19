@@ -29,7 +29,7 @@ import { AppNav } from "@/components/AppNav";
 import { RecordForm } from "@/components/RecordForm";
 import { getLookups, getRecords, deleteRecord, FIELD_LABELS } from "@/lib/sheets.functions";
 import type { RecordRow } from "@/lib/sheets.server";
-import { HEADERS as ALL_HEADERS, CIA_ORDER } from "@/lib/sheets.server";
+import { HEADERS as ALL_HEADERS, CIA_ORDER, CIDADE_ORDER } from "@/lib/sheets.server";
 import { getDeviceId } from "@/lib/device";
 
 const HEADERS = ALL_HEADERS.filter(
@@ -178,6 +178,13 @@ function Dashboard() {
       if (groupKey === "cia") {
         const ia = CIA_ORDER.indexOf(a);
         const ib = CIA_ORDER.indexOf(b);
+        if (ia !== -1 && ib !== -1) return ia - ib;
+        if (ia !== -1) return -1;
+        if (ib !== -1) return 1;
+      }
+      if (groupKey === "cidade") {
+        const ia = CIDADE_ORDER.indexOf(a.toUpperCase().trim());
+        const ib = CIDADE_ORDER.indexOf(b.toUpperCase().trim());
         if (ia !== -1 && ib !== -1) return ia - ib;
         if (ia !== -1) return -1;
         if (ib !== -1) return 1;
