@@ -31,7 +31,6 @@ import { getLookups, getRecords, deleteRecord } from "@/lib/sheets.functions";
 import { FIELD_LABELS } from "@/lib/sheets.constants";
 import type { RecordRow } from "@/lib/sheets.server";
 import { HEADERS as ALL_HEADERS, CIA_ORDER, CIDADE_ORDER } from "@/lib/sheets.server";
-import { getDeviceId } from "@/lib/device";
 
 const HEADERS = ALL_HEADERS.filter(
   (h) => h !== "id" && h !== "criadoEM" && h !== "createdByDevice" && h !== "updatedAt",
@@ -112,10 +111,8 @@ function Dashboard() {
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [editRow, setEditRow] = useState<RecordRow | null>(null);
-  const [deviceId, setDeviceId] = useState("");
   const [confirmDel, setConfirmDel] = useState<RecordRow | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  useEffect(() => setDeviceId(getDeviceId()), []);
 
 
   const queryClient = useQueryClient();
