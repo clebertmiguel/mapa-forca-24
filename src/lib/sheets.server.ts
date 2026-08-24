@@ -219,8 +219,8 @@ export async function appendRecord(row: RecordRow): Promise<void> {
 
 /** Localiza a linha pelo id e limpa os valores (mantém posição mas zera conteúdo). */
 export async function deleteRecordById(id: string): Promise<boolean> {
-  const all = await fetchAllRecords();
-  const idx = all.findIndex((r) => r.id === id);
+  const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
+  const idx = rows.findIndex((row) => (row[0] ?? "").toString() === id);
   if (idx === -1) return false;
   const sheetRow = idx + 2; // +1 cabeçalho, +1 base 1
   await gatewayFetch(
@@ -236,8 +236,8 @@ export async function findRecordById(id: string): Promise<RecordRow | undefined>
 }
 
 export async function updateRecordById(id: string, row: RecordRow): Promise<boolean> {
-  const all = await fetchAllRecords();
-  const idx = all.findIndex((r) => r.id === id);
+  const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
+  const idx = rows.findIndex((sheetRow) => (sheetRow[0] ?? "").toString() === id);
   if (idx === -1) return false;
   const sheetRow = idx + 2;
   const values = [HEADERS.map((h) => row[h] ?? "")];

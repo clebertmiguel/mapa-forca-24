@@ -27,7 +27,8 @@ import {
 import { toast } from "sonner";
 import { AppNav } from "@/components/AppNav";
 import { RecordForm } from "@/components/RecordForm";
-import { getLookups, getRecords, deleteRecord, FIELD_LABELS } from "@/lib/sheets.functions";
+import { getLookups, getRecords, deleteRecord } from "@/lib/sheets.functions";
+import { FIELD_LABELS } from "@/lib/sheets.constants";
 import type { RecordRow } from "@/lib/sheets.server";
 import { HEADERS as ALL_HEADERS, CIA_ORDER, CIDADE_ORDER } from "@/lib/sheets.server";
 import { getDeviceId } from "@/lib/device";
@@ -131,7 +132,7 @@ function Dashboard() {
 
   const delFn = useServerFn(deleteRecord);
   const delMutation = useMutation({
-    mutationFn: (id: string) => delFn({ data: { id, deviceId } }),
+    mutationFn: (id: string) => delFn({ data: { id } }),
     onSuccess: () => {
       toast.success("Registro excluído.");
       setConfirmDel(null);
@@ -417,7 +418,7 @@ function Dashboard() {
                           {(session.group === "Administrador" || 
                             session.group === "Oficiais" || 
                             session.group === "Supervisor" || 
-                            r.createdByEmail === session.email) ? (
+                            r.createdByEmail.trim().toLowerCase() === session.email.trim().toLowerCase()) ? (
                             <>
                               <Button
                                 size="icon"
