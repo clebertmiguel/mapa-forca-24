@@ -323,8 +323,8 @@ function Dashboard() {
                     const modColor =
                       mod === "CGP"
                         ? "#D32F2F"
-                        : mod === "DEJEM"
-                          ? "#3FA9F5"
+                        : mod === "DEJEM" || mod === "DEJEM FORUM"
+                          ? "#111184"
                           : mod === "DELEGADA"
                             ? "#2E7D32"
                             : undefined;
