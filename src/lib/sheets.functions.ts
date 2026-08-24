@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import {
   appendRecord,
   deleteRecordById,
@@ -7,25 +6,10 @@ import {
   fetchLookups,
   findRecordById,
   updateRecordById,
-  HEADERS,
   type RecordRow,
 } from "./sheets.server";
-
-function nowBR(): string {
-  // Formato dd/MM/yyyy HH:mm:ss no fuso de São Paulo
-  const parts = new Intl.DateTimeFormat("pt-BR", {
-    timeZone: "America/Sao_Paulo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  }).formatToParts(new Date());
-  const g = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
-  return `${g("day")}/${g("month")}/${g("year")} ${g("hour")}:${g("minute")}:${g("second")}`;
-}
+import { deleteInput, nowBR, recordInput, updateInput } from "./sheets-operations.server";
+import { requireRecordPermission } from "./record-permissions.server";
 
 export const getRecords = createServerFn({ method: "GET" }).handler(
   async () => {
@@ -38,24 +22,6 @@ export const getLookups = createServerFn({ method: "GET" }).handler(
     return await fetchLookups();
   },
 );
-
-const recordInput = z.object({
-  cia: z.string().min(1),
-  cidade: z.string().min(1),
-  data: z.string().min(1),
-  horaInicio: z.string().min(1),
-  horaTermino: z.string().min(1),
-  vtr: z.string().min(1),
-  modalidade: z.string().min(1),
-  gradEnc: z.string().optional().default(""),
-  nomeEncarregado: z.string().optional().default(""),
-  gradMot: z.string().min(1),
-  nomeMotorista: z.string().min(1),
-  auxiliares: z.string().optional().default(""),
-  tpd: z.enum(["SIM", "NAO"]),
-  deviceId: z.string().min(1, "Identificador do dispositivo ausente"),
-  createdByEmail: z.string().optional(),
-});
 
 export const createRecord = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => recordInput.parse(data))
@@ -104,28 +70,23 @@ export const createRecord = createServerFn({ method: "POST" })
     return { ok: true as const, id };
   });
 
-const deleteInput = z.object({
-  id: z.string().min(1),
-  deviceId: z.string().min(1),
-});
-
 export const deleteRecord = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => deleteInput.parse(data))
   .handler(async ({ data }) => {
     const rec = await findRecordById(data.id);
     if (!rec) throw new Error("Registro não encontrado.");
-    await deleteRecordById(data.id);
-    return { ok: true as const };
+    await requireRecordPermission(rec);
+    const deleted = await deleteRecordById(data.id);
+    if (!deleted) throw new Error("Não foi possível localizar o registro na planilha.");
     return { ok: true as const };
   });
-
-const updateInput = recordInput.extend({ id: z.string().min(1) });
 
 export const updateRecord = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => updateInput.parse(data))
   .handler(async ({ data }) => {
     const rec = await findRecordById(data.id);
     if (!rec) throw new Error("Registro não encontrado.");
+    await requireRecordPermission(rec);
     // VTR não precisa mais ser chave única
     /*
     const vtrNorm = data.vtr.trim().toLowerCase();
@@ -163,25 +124,4 @@ export const updateRecord = createServerFn({ method: "POST" })
     await updateRecordById(data.id, updated);
     return { ok: true as const };
   });
-
-export const FIELD_LABELS: Record<(typeof HEADERS)[number], string> = {
-  id: "ID",
-  cia: "CIA",
-  cidade: "Cidade",
-  data: "Data",
-  horaInicio: "Início",
-  horaTermino: "Término",
-  vtr: "VTR",
-  modalidade: "Modalidade",
-  gradEnc: "Grad Encarregado",
-  nomeEncarregado: "Encarregado",
-  gradMot: "Grad Motorista",
-  nomeMotorista: "Motorista",
-  auxiliares: "Auxiliares",
-  criadoEM: "Criado em",
-  tpd: "TPD",
-  createdByDevice: "Dispositivo",
-  updatedAt: "Atualizado em",
-  createdByEmail: "Cadastrado por",
-};
 
