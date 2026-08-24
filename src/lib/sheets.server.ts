@@ -217,15 +217,54 @@ export async function appendRecord(row: RecordRow): Promise<void> {
   );
 }
 
-/** Localiza a linha pelo id e limpa os valores (mantém posição mas zera conteúdo). */
+interface SpreadsheetMetadata {
+  sheets?: Array<{
+    properties?: {
+      sheetId?: number;
+      title?: string;
+    };
+  }>;
+}
+
+async function getSheetId(title: string): Promise<number> {
+  const metadata = (await gatewayFetch(
+    `/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties(sheetId,title)`,
+  )) as SpreadsheetMetadata;
+  const sheetId = metadata.sheets?.find(
+    (sheet) => sheet.properties?.title === title,
+  )?.properties?.sheetId;
+  if (typeof sheetId !== "number") {
+    throw new Error(`A aba ${title} não foi encontrada na planilha.`);
+  }
+  return sheetId;
+}
+
+/** Localiza a linha pelo id e a remove fisicamente da planilha. */
 export async function deleteRecordById(id: string): Promise<boolean> {
   const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
   const idx = rows.findIndex((row) => (row[0] ?? "").toString() === id);
   if (idx === -1) return false;
-  const sheetRow = idx + 2; // +1 cabeçalho, +1 base 1
+  const sheetId = await getSheetId(SHEET_RECORDS);
+  const startIndex = idx + 1; // A2 é o índice zero-based 1; preserva o cabeçalho.
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_RECORDS}!A${sheetRow}:R${sheetRow}:clear`,
-    { method: "POST", body: "{}" },
+    `/spreadsheets/${SPREADSHEET_ID}:batchUpdate`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId,
+                dimension: "ROWS",
+                startIndex,
+                endIndex: startIndex + 1,
+              },
+            },
+          },
+        ],
+      }),
+    },
   );
   return true;
 }
