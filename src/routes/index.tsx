@@ -190,7 +190,18 @@ function Dashboard() {
       const cmp = a.localeCompare(b, "pt-BR");
       return sortDir === "asc" ? cmp : -cmp;
     });
-    return keys.map((k) => [k, map.get(k)!] as const);
+    return keys.map((k) => {
+      const rows = [...map.get(k)!];
+      if (groupKey === "cia") {
+        rows.sort((a, b) => {
+          const modA = (a.modalidade || "").toUpperCase().trim();
+          const modB = (b.modalidade || "").toUpperCase().trim();
+          if (modA !== modB) return modA.localeCompare(modB, "pt-BR");
+          return (a.horaInicio || "").localeCompare(b.horaInicio || "", "pt-BR", { numeric: true });
+        });
+      }
+      return [k, rows] as const;
+    });
   }, [filtered, sortKey, sortDir]);
 
 
