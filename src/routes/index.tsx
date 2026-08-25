@@ -327,7 +327,9 @@ function Dashboard() {
                           ? "#111184"
                           : mod === "DELEGADA"
                             ? "#2E7D32"
-                            : undefined;
+                            : mod === "RPM"
+                              ? "#83358F"
+                              : undefined;
                     return (
                     <div
                       key={r.id}
