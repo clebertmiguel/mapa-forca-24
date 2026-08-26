@@ -74,6 +74,30 @@ function countPoliciais(r: RecordRow): number {
   return n;
 }
 
+function compareHora(a: string, b: string): number {
+  const normalize = (h: string) => h.replace(/[^0-9]/g, "").padStart(4, "0");
+  return normalize(a).localeCompare(normalize(b), undefined, { numeric: true });
+}
+
+function cidadeIndex(cidade: string): number {
+  const c = (cidade || "").trim().toUpperCase();
+  const idx = CIDADE_ORDER.findIndex((x) => x.toUpperCase() === c);
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
+interface CidadeSubgrupo {
+  cidade: string;
+  itens: RecordRow[];
+  total: number;
+}
+
+interface GrupoCIA {
+  key: string;
+  cidades: CidadeSubgrupo[];
+  total: number;
+  viaturas: number;
+}
+
 function VisualizarRelatorio() {
   const { data: records } = useSuspenseQuery(recordsQuery);
   const queryClient = useQueryClient();
@@ -86,15 +110,49 @@ function VisualizarRelatorio() {
     [records, date],
   );
 
-  const grupos = useMemo(() => {
+  const grupos = useMemo<GrupoCIA[]>(() => {
+    const byCia = new Map<string, RecordRow[]>();
+    for (const r of filtered) {
+      const cia = (r.cia || "").trim();
+      const list = byCia.get(cia) ?? [];
+      list.push(r);
+      byCia.set(cia, list);
+    }
+
     return CIA_ORDER.map((key) => {
-      const itens = filtered.filter((r) => (r.cia || "").trim() === key);
-      const total = itens.reduce((a, r) => a + countPoliciais(r), 0);
-      return { key, itens, total };
-    }).filter((g) => g.itens.length > 0);
+      const rows = byCia.get(key) ?? [];
+      if (rows.length === 0) return null;
+
+      const byCity = new Map<string, RecordRow[]>();
+      for (const r of rows) {
+        const city = (r.cidade || "").trim();
+        const list = byCity.get(city) ?? [];
+        list.push(r);
+        byCity.set(city, list);
+      }
+
+      const cidades = Array.from(byCity.entries())
+        .map(([cidade, itens]) => {
+          const sorted = itens.sort((a, b) => compareHora(a.horaInicio, b.horaInicio));
+          return {
+            cidade,
+            itens: sorted,
+            total: sorted.reduce((acc, r) => acc + countPoliciais(r), 0),
+          };
+        })
+        .sort((a, b) => cidadeIndex(a.cidade) - cidadeIndex(b.cidade));
+
+      return {
+        key,
+        cidades,
+        total: cidades.reduce((acc, c) => acc + c.total, 0),
+        viaturas: rows.length,
+      };
+    }).filter((g): g is GrupoCIA => g !== null);
   }, [filtered]);
 
   const totalGeral = grupos.reduce((a, g) => a + g.total, 0);
+  const totalViaturas = grupos.reduce((a, g) => a + g.viaturas, 0);
   const emissao = new Date().toLocaleString("pt-BR");
 
   async function atualizar() {
