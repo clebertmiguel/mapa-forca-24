@@ -273,87 +273,102 @@ function VisualizarRelatorio() {
                   >
                     <span>{g.key}</span>
                     <span className="text-xs font-semibold">
-                      {g.itens.length} viatura(s) · {g.total} policial(is)
+                      {g.viaturas} viatura(s) · {g.total} policial(is)
                     </span>
                   </div>
-                  <div className="overflow-x-auto">
-                    <table className="mt-1 w-full border-collapse text-[11px]">
-                      <thead>
-                        <tr style={{ background: "rgb(55,75,120)", color: "#fff" }}>
-                          {[
-                            "Cidade",
-                            "Início",
-                            "Término",
-                            "VTR",
-                            "Mod.",
-                            "TPD",
-                            "Encarregado",
-                            "Motorista",
-                            "Auxiliares",
-                          ].map((h) => (
-                            <th
-                              key={h}
-                              className="border border-[#cfd6e4] px-2 py-1.5 text-left font-semibold"
-                            >
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {g.itens.map((r, i) => {
-                          const mod = (r.modalidade || "").toUpperCase().trim();
-                          const color =
-                            mod === "CGP"
-                              ? "#D32F2F"
-                              : mod === "DEJEM"
-                                ? "#3FA9F5"
-                                : mod === "DELEGADA"
-                                  ? "#2E7D32"
-                                  : undefined;
-                          return (
-                          <tr
-                            key={r.id || i}
-                            style={{
-                              background:
-                                i % 2 === 1 ? "rgb(246,248,252)" : "#fff",
-                              color,
-                              fontWeight: color ? 600 : undefined,
-                            }}
-                          >
-                            <td className="border border-[#cfd6e4] px-2 py-1.5">
-                              {r.cidade}
-                            </td>
-                            <td className="border border-[#cfd6e4] px-2 py-1.5">
-                              {r.horaInicio}
-                            </td>
-                            <td className="border border-[#cfd6e4] px-2 py-1.5">
-                              {r.horaTermino}
-                            </td>
-                            <td className="border border-[#cfd6e4] px-2 py-1.5">
-                              {r.vtr}
-                            </td>
-                            <td className="border border-[#cfd6e4] px-2 py-1.5">
-                              {r.modalidade}
-                            </td>
-                            <td className="border border-[#cfd6e4] px-2 py-1.5 text-center font-semibold">
-                              {r.tpd || "NAO"}
-                            </td>
-                            <td className="border border-[#cfd6e4] px-2 py-1.5">
-                              {`${r.gradEnc} ${r.nomeEncarregado}`.trim()}
-                            </td>
-                            <td className="border border-[#cfd6e4] px-2 py-1.5">
-                              {`${r.gradMot} ${r.nomeMotorista}`.trim()}
-                            </td>
-                            <td className="border border-[#cfd6e4] px-2 py-1.5">
-                              {r.auxiliares || "—"}
-                            </td>
-                          </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+
+                  {g.cidades.map((sub) => (
+                    <div key={sub.cidade} className="mb-4 break-inside-avoid">
+                      <div
+                        className="px-3 py-1.5 text-xs font-bold uppercase tracking-wide"
+                        style={{
+                          background: "rgb(245,247,250)",
+                          color: "rgb(34,50,90)",
+                          borderBottom: "2px solid rgb(200,210,225)",
+                        }}
+                      >
+                        {sub.cidade}
+                        <span className="ml-2 font-normal normal-case opacity-80">
+                          ({sub.itens.length} viatura(s) · {sub.total} policial(is))
+                        </span>
+                      </div>
+
+                      <div className="overflow-x-auto">
+                        <table className="w-full border-collapse text-[11px]">
+                          <thead>
+                            <tr style={{ background: "rgb(55,75,120)", color: "#fff" }}>
+                              {[
+                                "Início",
+                                "Término",
+                                "VTR",
+                                "Mod.",
+                                "TPD",
+                                "Encarregado",
+                                "Motorista",
+                                "Auxiliares",
+                              ].map((h) => (
+                                <th
+                                  key={h}
+                                  className="border border-[#cfd6e4] px-2 py-1.5 text-left font-semibold"
+                                >
+                                  {h}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sub.itens.map((r, i) => {
+                              const mod = (r.modalidade || "").toUpperCase().trim();
+                              const color =
+                                mod === "CGP"
+                                  ? "#D32F2F"
+                                  : mod === "DEJEM"
+                                    ? "#3FA9F5"
+                                    : mod === "DELEGADA"
+                                      ? "#2E7D32"
+                                      : undefined;
+                              return (
+                                <tr
+                                  key={r.id || i}
+                                  style={{
+                                    background:
+                                      i % 2 === 1 ? "rgb(246,248,252)" : "#fff",
+                                    color,
+                                    fontWeight: color ? 600 : undefined,
+                                  }}
+                                >
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
+                                    {r.horaInicio}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
+                                    {r.horaTermino}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
+                                    {r.vtr}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
+                                    {r.modalidade}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5 text-center font-semibold">
+                                    {r.tpd || "NAO"}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
+                                    {`${r.gradEnc} ${r.nomeEncarregado}`.trim()}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
+                                    {`${r.gradMot} ${r.nomeMotorista}`.trim()}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
+                                    {r.auxiliares || "—"}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))
             )}
@@ -363,7 +378,7 @@ function VisualizarRelatorio() {
                 className="mt-6 text-sm font-bold"
                 style={{ color: "rgb(34,50,90)" }}
               >
-                Total geral de policiais: {totalGeral}   Total de Viaturas: {filtered.length}
+                Total geral de policiais: {totalGeral}   Total de Viaturas: {totalViaturas}
               </p>
             )}
           </section>
