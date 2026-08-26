@@ -300,13 +300,13 @@ function VisualizarRelatorio() {
                           <thead>
                             <tr style={{ background: "rgb(55,75,120)", color: "#fff" }}>
                               {[
+                                "VTR",
                                 "Início",
                                 "Término",
-                                "VTR",
-                                "Mod.",
-                                "TPD",
+                                "Modalidade",
                                 "Encarregado",
                                 "Motorista",
+                                "TPD",
                                 "Auxiliares",
                               ].map((h) => (
                                 <th
@@ -340,25 +340,25 @@ function VisualizarRelatorio() {
                                   }}
                                 >
                                   <td className="border border-[#cfd6e4] px-2 py-1.5">
+                                    {r.vtr}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
                                     {r.horaInicio}
                                   </td>
                                   <td className="border border-[#cfd6e4] px-2 py-1.5">
                                     {r.horaTermino}
                                   </td>
                                   <td className="border border-[#cfd6e4] px-2 py-1.5">
-                                    {r.vtr}
-                                  </td>
-                                  <td className="border border-[#cfd6e4] px-2 py-1.5">
                                     {r.modalidade}
-                                  </td>
-                                  <td className="border border-[#cfd6e4] px-2 py-1.5 text-center font-semibold">
-                                    {r.tpd || "NAO"}
                                   </td>
                                   <td className="border border-[#cfd6e4] px-2 py-1.5">
                                     {`${r.gradEnc} ${r.nomeEncarregado}`.trim()}
                                   </td>
                                   <td className="border border-[#cfd6e4] px-2 py-1.5">
                                     {`${r.gradMot} ${r.nomeMotorista}`.trim()}
+                                  </td>
+                                  <td className="border border-[#cfd6e4] px-2 py-1.5 text-center font-semibold">
+                                    {r.tpd || "NAO"}
                                   </td>
                                   <td className="border border-[#cfd6e4] px-2 py-1.5">
                                     {r.auxiliares || "—"}
