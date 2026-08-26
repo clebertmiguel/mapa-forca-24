@@ -83,9 +83,19 @@ export function gerarRelatorioPdf(
   let totalGeral = 0;
   let totalViaturas = 0;
 
+  let primeiroBloco = true;
+
   for (const cia of CIA_ORDER) {
     const rows = registros.filter((r) => (r.cia || "").trim() === cia);
     if (rows.length === 0) continue;
+
+    // Quebra de página: cada bloco de CIA começa em uma nova página
+    if (!primeiroBloco) {
+      doc.addPage();
+      cursorY = 60;
+    }
+    primeiroBloco = false;
+
 
     // Agrupa por cidade dentro da CIA
     const byCity = new Map<string, RecordRow[]>();
