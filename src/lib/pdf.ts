@@ -1,19 +1,20 @@
 /**
  * Geração de PDF do Mapa Força.
- * Agrupa por companhia respeitando a ordem oficial e produz layout A4
- * profissional com cabeçalhos, totais e numeração de páginas.
+ * Replica a tabulação da tela /relatorio-visualizar: agrupa por CIA
+ * (ordem oficial), depois por cidade (ordem fixa) e, dentro de cada
+ * cidade, classifica por hora inicial crescente.
  */
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import type { RecordRow } from "./sheets.server";
+import { CIDADE_ORDER, type RecordRow } from "./sheets.server";
 
-const CIA_ORDER: Array<{ key: string; label: string }> = [
-  { key: "1ª CIA PM", label: "1ª CIA PM" },
-  { key: "2ª CIA PM", label: "2ª CIA PM" },
-  { key: "3ª CIA PM", label: "3ª CIA PM" },
-  { key: "4ª CIA PM", label: "4ª CIA PM" },
-  { key: "EM", label: "EM" },
-];
+const CIA_ORDER = [
+  "1ª CIA PM",
+  "2ª CIA PM",
+  "3ª CIA PM",
+  "4ª CIA PM",
+  "EM",
+] as const;
 
 function countPoliciais(r: RecordRow): number {
   let n = 0;
@@ -25,11 +26,31 @@ function countPoliciais(r: RecordRow): number {
   return n;
 }
 
+function compareHora(a: string, b: string): number {
+  const normalize = (h: string) => h.replace(/[^0-9]/g, "").padStart(4, "0");
+  return normalize(a).localeCompare(normalize(b), undefined, { numeric: true });
+}
+
+function cidadeIndex(cidade: string): number {
+  const c = (cidade || "").trim().toUpperCase();
+  const idx = CIDADE_ORDER.findIndex((x) => x.toUpperCase() === c);
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
 function fmtBR(isoDate: string): string {
   if (!isoDate) return "";
   const [y, m, d] = isoDate.split("-");
   if (!y || !m || !d) return isoDate;
   return `${d}/${m}/${y}`;
+}
+
+function modTextColor(mod: string): [number, number, number] | null {
+  const m = (mod || "").toUpperCase().trim();
+  if (m === "DEJEM" || m === "DEJEM FORUM") return [17, 17, 132]; // #111184
+  if (m === "CGP") return [211, 47, 47];
+  if (m === "DELEGADA") return [46, 125, 50];
+  if (m === "RPM") return [131, 53, 143]; // #83358F
+  return null;
 }
 
 export function gerarRelatorioPdf(
@@ -60,27 +81,45 @@ export function gerarRelatorioPdf(
 
   let cursorY = 88;
   let totalGeral = 0;
+  let totalViaturas = 0;
 
-  CIA_ORDER.forEach((cia) => {
-    const itens = registros.filter((r) => (r.cia || "").trim() === cia.key);
-    if (itens.length === 0) return;
+  for (const cia of CIA_ORDER) {
+    const rows = registros.filter((r) => (r.cia || "").trim() === cia);
+    if (rows.length === 0) continue;
 
-    const totalCia = itens.reduce((acc, r) => acc + countPoliciais(r), 0);
+    // Agrupa por cidade dentro da CIA
+    const byCity = new Map<string, RecordRow[]>();
+    for (const r of rows) {
+      const city = (r.cidade || "").trim();
+      const list = byCity.get(city) ?? [];
+      list.push(r);
+      byCity.set(city, list);
+    }
+    const cidades = Array.from(byCity.entries())
+      .map(([cidade, itens]) => ({
+        cidade,
+        itens: itens.sort((a, b) => compareHora(a.horaInicio, b.horaInicio)),
+      }))
+      .sort((a, b) => cidadeIndex(a.cidade) - cidadeIndex(b.cidade));
+
+    const totalCia = rows.reduce((acc, r) => acc + countPoliciais(r), 0);
     totalGeral += totalCia;
+    totalViaturas += rows.length;
 
-    if (cursorY > 720) {
+    if (cursorY > 700) {
       doc.addPage();
       cursorY = 60;
     }
 
+    // Faixa de título da CIA
     doc.setFillColor(230, 235, 245);
     doc.rect(margin, cursorY - 14, pageW - margin * 2, 22, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(34, 50, 90);
-    doc.text(cia.label, margin + 8, cursorY);
+    doc.text(cia, margin + 8, cursorY);
     doc.text(
-      `${itens.length} viatura(s) · ${totalCia} policial(is)`,
+      `${rows.length} viatura(s) · ${totalCia} policial(is)`,
       pageW - margin - 8,
       cursorY,
       { align: "right" },
@@ -88,51 +127,80 @@ export function gerarRelatorioPdf(
     cursorY += 14;
     doc.setTextColor(20, 20, 20);
 
-    autoTable(doc, {
-      startY: cursorY,
-      head: [
-        [
-          "Cidade",
-          "Início",
-          "Término",
-          "VTR",
-          "Mod.",
-          "TPD",
-          "Encarregado",
-          "Motorista",
-          "Auxiliares",
+    // Subgrupos por cidade
+    for (const { cidade, itens } of cidades) {
+      const totalCidade = itens.reduce(
+        (acc, r) => acc + countPoliciais(r),
+        0,
+      );
+
+      if (cursorY > 720) {
+        doc.addPage();
+        cursorY = 60;
+      }
+
+      // Faixa de título da cidade
+      doc.setFillColor(245, 247, 250);
+      doc.rect(margin, cursorY - 11, pageW - margin * 2, 17, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(34, 50, 90);
+      doc.text(cidade.toUpperCase(), margin + 8, cursorY + 1);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.text(
+        `${itens.length} viatura(s) · ${totalCidade} policial(is)`,
+        pageW - margin - 8,
+        cursorY + 1,
+        { align: "right" },
+      );
+      cursorY += 12;
+      doc.setTextColor(20, 20, 20);
+
+      autoTable(doc, {
+        startY: cursorY,
+        head: [
+          [
+            "VTR",
+            "Início",
+            "Término",
+            "Modalidade",
+            "Encarregado",
+            "Motorista",
+            "TPD",
+            "Auxiliares",
+          ],
         ],
-      ],
-      body: itens.map((r) => [
-        r.cidade,
-        r.horaInicio,
-        r.horaTermino,
-        r.vtr,
-        r.modalidade,
-        r.tpd || "NAO",
-        `${r.gradEnc} ${r.nomeEncarregado}`.trim(),
-        `${r.gradMot} ${r.nomeMotorista}`.trim(),
-        r.auxiliares || "—",
-      ]),
-      styles: { fontSize: 8, cellPadding: 4 },
-      headStyles: { fillColor: [55, 75, 120], textColor: 255 },
-      alternateRowStyles: { fillColor: [246, 248, 252] },
-      margin: { left: margin, right: margin },
-      theme: "grid",
-      didParseCell: (data) => {
-        if (data.section !== "body") return;
-        const mod = (itens[data.row.index]?.modalidade || "")
-          .toUpperCase()
-          .trim();
-        if (mod === "CGP") data.cell.styles.textColor = [211, 47, 47];
-        else if (mod === "DEJEM") data.cell.styles.textColor = [63, 169, 245];
-        else if (mod === "DELEGADA")
-          data.cell.styles.textColor = [46, 125, 50];
-      },
-    });
-    // @ts-expect-error autoTable injeta lastAutoTable em runtime
-    cursorY = (doc.lastAutoTable?.finalY ?? cursorY) + 24;
-  });
+        body: itens.map((r) => [
+          r.vtr,
+          r.horaInicio,
+          r.horaTermino,
+          r.modalidade,
+          `${r.gradEnc} ${r.nomeEncarregado}`.trim(),
+          `${r.gradMot} ${r.nomeMotorista}`.trim(),
+          r.tpd || "NAO",
+          r.auxiliares || "—",
+        ]),
+        styles: { fontSize: 8, cellPadding: 4 },
+        headStyles: { fillColor: [55, 75, 120], textColor: 255 },
+        alternateRowStyles: { fillColor: [246, 248, 252] },
+        margin: { left: margin, right: margin },
+        theme: "grid",
+        didParseCell: (data) => {
+          if (data.section !== "body") return;
+          const color = modTextColor(itens[data.row.index]?.modalidade ?? "");
+          if (color) {
+            data.cell.styles.textColor = color;
+            data.cell.styles.fontStyle = "bold";
+          }
+        },
+      });
+      // @ts-expect-error autoTable injeta lastAutoTable em runtime
+      cursorY = (doc.lastAutoTable?.finalY ?? cursorY) + 16;
+    }
+
+    cursorY += 8;
+  }
 
   if (totalGeral === 0) {
     doc.setFontSize(11);
@@ -149,7 +217,11 @@ export function gerarRelatorioPdf(
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
     doc.setTextColor(34, 50, 90);
-    doc.text(`Total geral de policiais: ${totalGeral}   Total de Viaturas: ${registros.length}`, margin, cursorY);
+    doc.text(
+      `Total geral de policiais: ${totalGeral}   Total de Viaturas: ${totalViaturas}`,
+      margin,
+      cursorY,
+    );
   }
 
   // Numeração de páginas
