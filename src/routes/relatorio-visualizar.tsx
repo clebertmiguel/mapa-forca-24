@@ -17,6 +17,7 @@ import { getRecords } from "@/lib/sheets.functions";
 import { gerarRelatorioPdf } from "@/lib/pdf";
 import { gerarRelatorioExcel } from "@/lib/excel";
 import type { RecordRow } from "@/lib/sheets.server";
+import { CIDADE_ORDER } from "@/lib/sheets.server";
 import pmLogo from "@/assets/pm-logo.png.asset.json";
 
 const recordsQuery = { queryKey: ["records"], queryFn: () => getRecords() };
