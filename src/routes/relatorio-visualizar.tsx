@@ -321,13 +321,15 @@ function VisualizarRelatorio() {
                           <tbody>
                             {sub.itens.map((r, i) => {
                               const mod = (r.modalidade || "").toUpperCase().trim();
-                              const color =
-                                mod === "CGP"
+                              const isDejem = mod === "DEJEM" || mod === "DEJEM FORUM";
+                              const color = isDejem
+                                ? "#111184"
+                                : mod === "CGP"
                                   ? "#D32F2F"
-                                  : mod === "DEJEM"
-                                    ? "#3FA9F5"
-                                    : mod === "DELEGADA"
-                                      ? "#2E7D32"
+                                  : mod === "DELEGADA"
+                                    ? "#2E7D32"
+                                    : mod === "RPM"
+                                      ? "#83358F"
                                       : undefined;
                               return (
                                 <tr
