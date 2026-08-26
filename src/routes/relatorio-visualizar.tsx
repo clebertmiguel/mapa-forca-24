@@ -110,7 +110,7 @@ function VisualizarRelatorio() {
     [records, date],
   );
 
-  const grupos = useMemo<GrupoCIA[]>(() => {
+  const grupos = useMemo(() => {
     const byCia = new Map<string, RecordRow[]>();
     for (const r of filtered) {
       const cia = (r.cia || "").trim();
@@ -119,9 +119,10 @@ function VisualizarRelatorio() {
       byCia.set(cia, list);
     }
 
-    return CIA_ORDER.map((key) => {
+    const result: GrupoCIA[] = [];
+    for (const key of CIA_ORDER) {
       const rows = byCia.get(key) ?? [];
-      if (rows.length === 0) return null;
+      if (rows.length === 0) continue;
 
       const byCity = new Map<string, RecordRow[]>();
       for (const r of rows) {
@@ -142,13 +143,14 @@ function VisualizarRelatorio() {
         })
         .sort((a, b) => cidadeIndex(a.cidade) - cidadeIndex(b.cidade));
 
-      return {
+      result.push({
         key,
         cidades,
         total: cidades.reduce((acc, c) => acc + c.total, 0),
         viaturas: rows.length,
-      };
-    }).filter((g): g is GrupoCIA => g !== null);
+      });
+    }
+    return result;
   }, [filtered]);
 
   const totalGeral = grupos.reduce((a, g) => a + g.total, 0);
