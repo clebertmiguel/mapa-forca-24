@@ -331,16 +331,16 @@ function Dashboard() {
                 <div className="space-y-2">
                   {rows.map((r) => {
                     const mod = (r.modalidade || "").toUpperCase().trim();
-                    const modColor =
-                      mod === "CGP"
-                        ? "#D32F2F"
-                        : mod === "DEJEM" || mod === "DEJEM FORUM"
-                          ? "#111184"
-                          : mod === "DELEGADA"
-                            ? "#2E7D32"
-                            : mod === "RPM"
-                              ? "#83358F"
-                              : undefined;
+                    const isCgp = mod === "CGP" || /^CGP \d+$/.test(mod);
+                    const modColor = isCgp
+                      ? "#D32F2F"
+                      : mod === "DEJEM" || mod === "DEJEM FORUM"
+                        ? "#111184"
+                        : mod === "DELEGADA"
+                          ? "#2E7D32"
+                          : mod === "RPM"
+                            ? "#83358F"
+                            : undefined;
                     return (
                     <div
                       key={r.id}
