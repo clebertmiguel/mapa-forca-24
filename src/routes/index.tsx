@@ -175,7 +175,7 @@ function Dashboard() {
     });
 
     return rows;
-  }, [records, activeDate, search, sortKey, sortDir]);
+  }, [records, activeDate, search, sortKey, sortDir, shiftFilter]);
 
   const groupedRows = useMemo(() => {
     const groupKey: keyof RecordRow =
