@@ -151,6 +151,15 @@ function Dashboard() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     let rows = records.filter((r) => r.data === activeDate);
+    if (shiftFilter) {
+      rows = rows.filter((r) => {
+        const v = timeValue(r.horaInicio || "");
+        if (v < 0) return false;
+        if (shiftFilter === "matutino") return v <= 12 * 60;
+        if (shiftFilter === "vespertino") return v > 12 * 60 && v <= 17 * 60 + 30;
+        return v > 17 * 60 + 30;
+      });
+    }
     if (q) {
       rows = rows.filter((r) =>
         HEADERS.some((h) => (r[h] || "").toLowerCase().includes(q)),
