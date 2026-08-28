@@ -327,6 +327,39 @@ function Dashboard() {
 
         </div>
 
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Filtrar por turno:</span>
+          {([
+            ["matutino", "Matutino"],
+            ["vespertino", "Vespertino"],
+            ["noturno", "Noturno"],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() =>
+                setShiftFilter((current) => (current === key ? null : key))
+              }
+              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 transition ${
+                shiftFilter === key
+                  ? "border-pm-navy bg-pm-navy text-primary-foreground"
+                  : "border-border bg-card hover:bg-muted"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+          <button
+            onClick={() => setShiftFilter(null)}
+            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 transition ${
+              shiftFilter === null
+                ? "border-muted-foreground/50 bg-muted text-muted-foreground"
+                : "border-border bg-card hover:bg-muted"
+            }`}
+          >
+            Todos
+          </button>
+        </div>
+
         {filtered.length === 0 ? (
           <Card className="border-dashed border-border/60 p-10 text-center text-sm text-muted-foreground">
             Nenhum registro para hoje.
