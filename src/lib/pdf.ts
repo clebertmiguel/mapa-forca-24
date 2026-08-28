@@ -47,7 +47,7 @@ function fmtBR(isoDate: string): string {
 function modTextColor(mod: string): [number, number, number] | null {
   const m = (mod || "").toUpperCase().trim();
   if (m === "DEJEM" || m === "DEJEM FORUM") return [17, 17, 132]; // #111184
-  if (m === "CGP") return [211, 47, 47];
+  if (m === "CGP" || /^CGP \d+$/.test(m)) return [211, 47, 47];
   if (m === "DELEGADA") return [46, 125, 50];
   if (m === "RPM") return [131, 53, 143]; // #83358F
   return null;
