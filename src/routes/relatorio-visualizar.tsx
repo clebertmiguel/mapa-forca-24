@@ -322,9 +322,10 @@ function VisualizarRelatorio() {
                             {sub.itens.map((r, i) => {
                               const mod = (r.modalidade || "").toUpperCase().trim();
                               const isDejem = mod === "DEJEM" || mod === "DEJEM FORUM";
+                              const isCgp = mod === "CGP" || /^CGP \d+$/.test(mod);
                               const color = isDejem
                                 ? "#111184"
-                                : mod === "CGP"
+                                : isCgp
                                   ? "#D32F2F"
                                   : mod === "DELEGADA"
                                     ? "#2E7D32"

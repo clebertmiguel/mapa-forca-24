@@ -195,13 +195,15 @@ export async function gerarRelatorioExcel(
         r.auxiliares || "—",
       ];
       const mod = (r.modalidade || "").toUpperCase().trim();
-      const modColor =
-        mod === "CGP"
-          ? "FFD32F2F"
-          : mod === "DEJEM"
-            ? "FF3FA9F5"
-            : mod === "DELEGADA"
-              ? "FF2E7D32"
+      const isCgp = mod === "CGP" || /^CGP \d+$/.test(mod);
+      const modColor = isCgp
+        ? "FFD32F2F"
+        : mod === "DEJEM" || mod === "DEJEM FORUM"
+          ? "FF111184"
+          : mod === "DELEGADA"
+            ? "FF2E7D32"
+            : mod === "RPM"
+              ? "FF83358F"
               : undefined;
       values.forEach((v, j) => {
         const c = tr.getCell(j + 1);
