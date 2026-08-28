@@ -94,6 +94,12 @@ function tomorrowISO(): string {
   return `${y}-${m}-${day}`;
 }
 
+function timeValue(t: string): number {
+  const [h, m] = t.trim().split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return -1;
+  return h * 60 + m;
+}
+
 function Dashboard() {
   const { session } = Route.useRouteContext();
   const { data: allRecords } = useSuspenseQuery(recordsQuery);
