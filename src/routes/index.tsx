@@ -113,6 +113,7 @@ function Dashboard() {
   const [editRow, setEditRow] = useState<RecordRow | null>(null);
   const [confirmDel, setConfirmDel] = useState<RecordRow | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [shiftFilter, setShiftFilter] = useState<"matutino" | "vespertino" | "noturno" | null>(null);
 
 
   const queryClient = useQueryClient();
