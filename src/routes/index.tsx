@@ -94,6 +94,12 @@ function tomorrowISO(): string {
   return `${y}-${m}-${day}`;
 }
 
+function timeValue(t: string): number {
+  const [h, m] = t.trim().split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return -1;
+  return h * 60 + m;
+}
+
 function Dashboard() {
   const { session } = Route.useRouteContext();
   const { data: allRecords } = useSuspenseQuery(recordsQuery);
@@ -113,6 +119,7 @@ function Dashboard() {
   const [editRow, setEditRow] = useState<RecordRow | null>(null);
   const [confirmDel, setConfirmDel] = useState<RecordRow | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [shiftFilter, setShiftFilter] = useState<"matutino" | "vespertino" | "noturno" | null>(null);
 
 
   const queryClient = useQueryClient();
@@ -144,6 +151,15 @@ function Dashboard() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     let rows = records.filter((r) => r.data === activeDate);
+    if (shiftFilter) {
+      rows = rows.filter((r) => {
+        const v = timeValue(r.horaInicio || "");
+        if (v < 0) return false;
+        if (shiftFilter === "matutino") return v <= 12 * 60;
+        if (shiftFilter === "vespertino") return v > 12 * 60 && v <= 17 * 60 + 30;
+        return v > 17 * 60 + 30;
+      });
+    }
     if (q) {
       rows = rows.filter((r) =>
         HEADERS.some((h) => (r[h] || "").toLowerCase().includes(q)),
@@ -159,7 +175,7 @@ function Dashboard() {
     });
 
     return rows;
-  }, [records, activeDate, search, sortKey, sortDir]);
+  }, [records, activeDate, search, sortKey, sortDir, shiftFilter]);
 
   const groupedRows = useMemo(() => {
     const groupKey: keyof RecordRow =
@@ -309,6 +325,39 @@ function Dashboard() {
             </button>
           ))}
 
+        </div>
+
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Filtrar por turno:</span>
+          {([
+            ["matutino", "Matutino"],
+            ["vespertino", "Vespertino"],
+            ["noturno", "Noturno"],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() =>
+                setShiftFilter((current) => (current === key ? null : key))
+              }
+              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 transition ${
+                shiftFilter === key
+                  ? "border-pm-navy bg-pm-navy text-primary-foreground"
+                  : "border-border bg-card hover:bg-muted"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+          <button
+            onClick={() => setShiftFilter(null)}
+            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 transition ${
+              shiftFilter === null
+                ? "border-muted-foreground/50 bg-muted text-muted-foreground"
+                : "border-border bg-card hover:bg-muted"
+            }`}
+          >
+            Todos
+          </button>
         </div>
 
         {filtered.length === 0 ? (
