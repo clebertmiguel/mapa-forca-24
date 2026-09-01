@@ -60,7 +60,7 @@ export async function appendUser(user: UserRow): Promise<void> {
   const values = [USER_HEADERS.map((h) => (user as any)[h] ?? "")];
   // Usando um range que a API parece aceitar melhor para append: apenas o nome da aba
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_USERS}!A2:H:append?valueInputOption=USER_ENTERED`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_USERS}!A2:I:append?valueInputOption=USER_ENTERED`,
     {
       method: "POST",
       body: JSON.stringify({ values }),
