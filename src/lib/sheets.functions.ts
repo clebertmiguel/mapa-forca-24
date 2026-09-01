@@ -75,8 +75,8 @@ export const deleteRecord = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const rec = await findRecordById(data.id);
     if (!rec) throw new Error("Registro não encontrado.");
-    await requireRecordPermission(rec);
-    const deleted = await deleteRecordById(data.id);
+    const user = await requireRecordPermission(rec);
+    const deleted = await deleteRecordById(data.id, user.email);
     if (!deleted) throw new Error("Não foi possível localizar o registro na planilha.");
     return { ok: true as const };
   });
