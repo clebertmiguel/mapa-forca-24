@@ -11,7 +11,9 @@ export interface SessionData {
   email: string;
   name: string;
   group: UserGroup;
+  cia?: string;
 }
+
 
 export const login = createServerFn({ method: "POST" })
   .inputValidator((data) =>
@@ -34,7 +36,9 @@ export const login = createServerFn({ method: "POST" })
       email: user.email,
       name: user.nome,
       group: user.grupo,
+      cia: (user.cia ?? "").trim(),
     };
+
 
     // Usando cookie simples para sessão (em prod deve ser assinado/JWT)
     setCookie(SESSION_COOKIE, JSON.stringify(session), {
