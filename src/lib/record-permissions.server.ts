@@ -27,9 +27,21 @@ export async function requireRecordPermission(record: RecordRow): Promise<UserRo
     throw new Error("Usuário sem acesso ativo.");
   }
 
-  const elevatedGroups = new Set(["Administrador", "Oficiais", "Supervisor"]);
-  const ownsRecord =
-    record.createdByEmail.trim().toLowerCase() === user.email.trim().toLowerCase();
+  const norm = (v?: string) => (v ?? "").trim().toLowerCase();
+
+  if (user.grupo === "Supervisor") {
+    const userCia = norm(user.cia);
+    const recCia = norm(record.cia);
+    if (!userCia || !recCia || userCia !== recCia) {
+      throw new Error(
+        "Você não possui permissão para alterar ou excluir registros de outra CIA.",
+      );
+    }
+    return user;
+  }
+
+  const elevatedGroups = new Set(["Administrador", "Oficiais"]);
+  const ownsRecord = norm(record.createdByEmail) === norm(user.email);
 
   if (!elevatedGroups.has(user.grupo) && !ownsRecord) {
     throw new Error("Você não tem permissão para alterar este registro.");
