@@ -239,11 +239,58 @@ async function getSheetId(title: string): Promise<number> {
   return sheetId;
 }
 
-/** Localiza a linha pelo id e a remove fisicamente da planilha. */
-export async function deleteRecordById(id: string): Promise<boolean> {
+const SHEET_EXCLUIDOS = "Excluidos";
+
+const EXCLUIDOS_HEADERS = [...HEADERS, "usuarioExclusao", "dataExclusao", "horaExclusao"];
+
+/** Garante que a aba Excluidos exista (cria com cabeçalho se necessário). */
+async function ensureExcluidosSheet(): Promise<void> {
+  try {
+    await getSheetId(SHEET_EXCLUIDOS);
+  } catch {
+    await gatewayFetch(`/spreadsheets/${SPREADSHEET_ID}:batchUpdate`, {
+      method: "POST",
+      body: JSON.stringify({
+        requests: [{ addSheet: { properties: { title: SHEET_EXCLUIDOS } } }],
+      }),
+    });
+    await gatewayFetch(
+      `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_EXCLUIDOS}!A1:U1?valueInputOption=USER_ENTERED`,
+      { method: "PUT", body: JSON.stringify({ values: [EXCLUIDOS_HEADERS] }) },
+    );
+  }
+}
+
+/** Copia o registro para a aba Excluidos com usuário/data/hora da exclusão. */
+async function archiveRecord(rowValues: string[], deletedBy: string): Promise<void> {
+  await ensureExcluidosSheet();
+  const now = new Date();
+  const dataExclusao = now.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+  const horaExclusao = now.toLocaleTimeString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  const padded = HEADERS.map((_, i) => (rowValues[i] ?? "").toString());
+  await gatewayFetch(
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_EXCLUIDOS}!A2:U:append?valueInputOption=USER_ENTERED`,
+    {
+      method: "POST",
+      body: JSON.stringify({ values: [[...padded, deletedBy, dataExclusao, horaExclusao]] }),
+    },
+  );
+}
+
+/** Arquiva o registro na aba Excluidos e só então remove a linha de Records. */
+export async function deleteRecordById(id: string, deletedBy: string): Promise<boolean> {
   const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
   const idx = rows.findIndex((row) => (row[0] ?? "").toString() === id);
   if (idx === -1) return false;
+
+  // A exclusão só prossegue após a gravação na aba Excluidos.
+  await archiveRecord(rows[idx], deletedBy);
+
   const sheetId = await getSheetId(SHEET_RECORDS);
   const startIndex = idx + 1; // A2 é o índice zero-based 1; preserva o cabeçalho.
   await gatewayFetch(
