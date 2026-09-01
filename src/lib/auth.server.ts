@@ -14,6 +14,7 @@ export const USER_HEADERS = [
   "senha",
   "grupo",
   "ativo",
+  "cia",
 ] as const;
 
 export type UserGroup = "Administrador" | "Oficiais" | "Supervisor" | "Usuario";
@@ -27,11 +28,12 @@ export interface UserRow {
   senha?: string;
   grupo: UserGroup;
   ativo: "SIM" | "NAO";
+  cia?: string;
 }
 
 export async function fetchAllUsers(): Promise<UserRow[]> {
   try {
-    const rows = await readRange(`${SHEET_USERS}!A2:H1000`);
+    const rows = await readRange(`${SHEET_USERS}!A2:I1000`);
     return rows
       .filter((r) => r.length > 0 && (r[3] ?? "").toString().trim() !== "")
       .map((r) => {
@@ -46,6 +48,7 @@ export async function fetchAllUsers(): Promise<UserRow[]> {
     return [];
   }
 }
+
 
 export async function findUserByEmail(email: string): Promise<UserRow | undefined> {
   const all = await fetchAllUsers();
