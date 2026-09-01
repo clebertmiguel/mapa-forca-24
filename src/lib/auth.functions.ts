@@ -11,7 +11,9 @@ export interface SessionData {
   email: string;
   name: string;
   group: UserGroup;
+  cia?: string;
 }
+
 
 export const login = createServerFn({ method: "POST" })
   .inputValidator((data) =>
