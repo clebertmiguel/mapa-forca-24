@@ -482,9 +482,12 @@ function Dashboard() {
                               —
                             </span>
                           )}
-                          {(session.group === "Administrador" || 
-                            session.group === "Oficiais" || 
-                            session.group === "Supervisor" || 
+                          {(session.group === "Administrador" ||
+                            session.group === "Oficiais" ||
+                            (session.group === "Supervisor" &&
+                              !!(session.cia ?? "").trim() &&
+                              (r.cia ?? "").trim().toLowerCase() ===
+                                (session.cia ?? "").trim().toLowerCase()) ||
                             r.createdByEmail.trim().toLowerCase() === session.email.trim().toLowerCase()) ? (
                             <>
                               <Button
