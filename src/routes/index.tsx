@@ -105,8 +105,16 @@ function Dashboard() {
   const { data: allRecords } = useSuspenseQuery(recordsQuery);
 
   const records = useMemo(() => {
+    if (session.group === "Supervisor") {
+      const userCia = (session.cia ?? "").trim().toLowerCase();
+      if (!userCia) return [];
+      return allRecords.filter(
+        (r) => (r.cia ?? "").trim().toLowerCase() === userCia,
+      );
+    }
     return allRecords;
-  }, [allRecords]);
+  }, [allRecords, session]);
+
   const today = todayISO();
   const tomorrow = tomorrowISO();
   const [dayFilter, setDayFilter] = useState<"hoje" | "amanha">("hoje");
@@ -474,9 +482,12 @@ function Dashboard() {
                               —
                             </span>
                           )}
-                          {(session.group === "Administrador" || 
-                            session.group === "Oficiais" || 
-                            session.group === "Supervisor" || 
+                          {(session.group === "Administrador" ||
+                            session.group === "Oficiais" ||
+                            (session.group === "Supervisor" &&
+                              !!(session.cia ?? "").trim() &&
+                              (r.cia ?? "").trim().toLowerCase() ===
+                                (session.cia ?? "").trim().toLowerCase()) ||
                             r.createdByEmail.trim().toLowerCase() === session.email.trim().toLowerCase()) ? (
                             <>
                               <Button
