@@ -21,15 +21,15 @@ export const login = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const user = await findUserByEmail(data.email);
-    if (!user) return { error: "USER_NOT_FOUND" as const };
-    if (user.ativo !== "SIM") return { error: "USER_INACTIVE" as const };
-
+    if (!user) throw new Error("Usuário não encontrado.");
+    if (user.ativo !== "SIM") throw new Error("Usuário inativo.");
+    
     // Verifica senha criptografada (ou texto plano se for usuário legado/seed manual)
     const isMatch = user.senha?.startsWith("$2a$") || user.senha?.startsWith("$2b$")
       ? await bcrypt.compare(data.password, user.senha)
       : user.senha === data.password;
 
-    if (!isMatch) return { error: "WRONG_PASSWORD" as const };
+    if (!isMatch) throw new Error("Senha incorreta.");
 
     const session: SessionData = {
       userId: user.id,

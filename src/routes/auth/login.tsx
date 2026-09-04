@@ -38,21 +38,10 @@ function LoginPage() {
       console.log("Mutation start with data:", data);
       return loginFn({ data });
     },
-    onSuccess: (result) => {
-      if ("error" in result) {
-        if (result.error === "USER_NOT_FOUND") {
-          toast.error("Usuário não cadastrado. Verifique o e-mail ou cadastre-se.");
-        } else if (result.error === "WRONG_PASSWORD") {
-          toast.error("Senha incorreta. Tente novamente.");
-        } else if (result.error === "USER_INACTIVE") {
-          toast.error("Usuário inativo. Contate o administrador.");
-        } else {
-          toast.error("Erro ao realizar login.");
-        }
-        return;
-      }
+    onSuccess: (session) => {
+      console.log("Login success:", session);
       toast.success("Bem-vindo!");
-      queryClient.setQueryData(["session"], result);
+      queryClient.setQueryData(["session"], session);
       navigate({ to: "/", replace: true });
     },
     onError: (e: Error) => {
