@@ -126,18 +126,7 @@ function timeValue(t: string): number {
 
 function Dashboard() {
   const { session } = Route.useRouteContext();
-  const { data: allRecords } = useSuspenseQuery(recordsQuery);
-
-  const records = useMemo(() => {
-    if (session.group === "Supervisor") {
-      const userCia = (session.cia ?? "").trim().toLowerCase();
-      if (!userCia) return [];
-      return allRecords.filter(
-        (r) => (r.cia ?? "").trim().toLowerCase() === userCia,
-      );
-    }
-    return allRecords;
-  }, [allRecords, session]);
+  const { data: records } = useSuspenseQuery(recordsQuery);
 
   const today = todayISO();
   const tomorrow = tomorrowISO();
