@@ -182,7 +182,7 @@ function Dashboard() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    let rows = records.filter((r) => r.data === activeDate);
+    let rows = records.filter((r) => toISODate(r.data) === activeDate);
     if (shiftFilter) {
       rows = rows.filter((r) => {
         const v = timeValue(r.horaInicio || "");
