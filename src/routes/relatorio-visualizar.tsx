@@ -106,7 +106,7 @@ function VisualizarRelatorio() {
   const [refreshing, setRefreshing] = useState(false);
 
   const filtered = useMemo(
-    () => records.filter((r) => r.data === date),
+    () => records.filter((r) => toISODate(r.data) === date),
     [records, date],
   );
 
