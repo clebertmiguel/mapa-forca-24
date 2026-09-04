@@ -58,6 +58,22 @@ function todayISO() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+function toISODate(v: string): string {
+  const s = (v || "").trim();
+  if (!s) return "";
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  const slash = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+  if (slash) {
+    let d = Number(slash[1]);
+    let m = Number(slash[2]);
+    const y = slash[3];
+    if (d <= 12 && m > 12) [d, m] = [m, d];
+    return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  }
+  return s;
+}
+
 function fmtBR(iso: string) {
   if (!iso) return "";
   const [y, m, d] = iso.split("-");
@@ -106,7 +122,7 @@ function VisualizarRelatorio() {
   const [refreshing, setRefreshing] = useState(false);
 
   const filtered = useMemo(
-    () => records.filter((r) => r.data === date),
+    () => records.filter((r) => toISODate(r.data) === date),
     [records, date],
   );
 

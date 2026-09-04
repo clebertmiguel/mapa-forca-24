@@ -94,6 +94,30 @@ function tomorrowISO(): string {
   return `${y}-${m}-${day}`;
 }
 
+function toISODate(v: string): string {
+  const s = (v || "").trim();
+  if (!s) return "";
+  // Já está em ISO (yyyy-mm-dd)
+  const iso = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  // Formatos com barra: dd/mm/yyyy ou m/d/yyyy vindos da planilha
+  const slash = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s);
+  if (slash) {
+    let d = Number(slash[1]);
+    let m = Number(slash[2]);
+    const y = slash[3];
+    // Se o primeiro número > 12, é dia (formato BR)
+    if (d > 12) {
+      // já está correto: d=dia, m=mês
+    } else if (m > 12) {
+      // formato US m/d/yyyy -> troca
+      [d, m] = [m, d];
+    }
+    return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  }
+  return s;
+}
+
 function timeValue(t: string): number {
   const [h, m] = t.trim().split(":").map(Number);
   if (Number.isNaN(h) || Number.isNaN(m)) return -1;
@@ -158,7 +182,7 @@ function Dashboard() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    let rows = records.filter((r) => r.data === activeDate);
+    let rows = records.filter((r) => toISODate(r.data) === activeDate);
     if (shiftFilter) {
       rows = rows.filter((r) => {
         const v = timeValue(r.horaInicio || "");
