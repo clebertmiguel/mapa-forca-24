@@ -83,7 +83,7 @@ export function RecordForm({ defaultDate, onSuccess, initial }: Props) {
     onError: (e: Error, vars) => {
       if (/já existe um registro/i.test(e.message)) {
         setDupDialog({ vtr: vars.vtr, data: vars.data });
-        form.setError("vtr", { type: "manual", message: "VTR já cadastrada para esta data" });
+        form.setError("vtr", { type: "manual", message: "Registro idêntico já cadastrado" });
         form.setFocus("vtr");
         return;
       }
