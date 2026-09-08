@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { findUserByEmail, appendUser, type UserRow, type UserGroup } from "./auth.server";
+import { findUserByEmail, findUserByRE, appendUser, type UserRow, type UserGroup } from "./auth.server";
 import { setCookie, getCookie, deleteCookie } from "@tanstack/react-start/server";
 import bcrypt from "bcryptjs";
 
@@ -78,7 +78,16 @@ export const registerUser = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const existing = await findUserByEmail(data.email);
-    if (existing) throw new Error("E-mail já cadastrado.");
+    if (existing)
+      throw new Error(
+        "Este e-mail já está cadastrado. Utilize outro e-mail ou faça login com o existente.",
+      );
+
+    const sameRE = await findUserByRE(data.re);
+    if (sameRE)
+      throw new Error(
+        `O RE ${data.re} já está cadastrado para ${sameRE.nome || "outro usuário"}. Verifique os dados informados.`,
+      );
 
     const hashedEmail = data.email.toLowerCase().trim();
     const hashedPassword = await bcrypt.hash(data.senha, 10);
