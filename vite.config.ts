@@ -2,10 +2,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   tanstackStart: {
-    server: {
-      entry: "server",
-    },
-    prerender: {
+       prerender: {
       enabled: true,
       autoSubfolderIndex: true,
       autoStaticPathsDiscovery: true,
