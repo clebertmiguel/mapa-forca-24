@@ -343,11 +343,12 @@ export function RecordForm({ defaultDate, onSuccess, initial }: Props) {
     >
       <AlertDialogContent className="z-[100]">
         <AlertDialogHeader>
-          <AlertDialogTitle>⚠️ VTR já cadastrada</AlertDialogTitle>
+          <AlertDialogTitle>⚠️ Registro já cadastrado</AlertDialogTitle>
           <AlertDialogDescription>
-            A viatura <strong>{dupDialog?.vtr}</strong> já possui um registro cadastrado no Mapa Força para a data <strong>{dupDialog?.data}</strong>.
+            Já existe um registro igual para a viatura <strong>{dupDialog?.vtr}</strong> na data{" "}
+            <strong>{dupDialog?.data}</strong> (mesma modalidade, cidade e horários).
             <br />
-            Verifique a VTR informada ou edite o registro já existente.
+            Os dados do formulário foram mantidos: ajuste as informações ou edite o registro existente.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
