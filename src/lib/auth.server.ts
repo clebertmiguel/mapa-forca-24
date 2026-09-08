@@ -67,3 +67,12 @@ export async function appendUser(user: UserRow): Promise<void> {
     },
   );
 }
+
+/** Procura usuário por RE (número funcional), ignorando espaços/zeros à esquerda. */
+export async function findUserByRE(re: string): Promise<UserRow | undefined> {
+  const all = await fetchAllUsers();
+  const norm = (v: string) => (v ?? "").toString().replace(/\D/g, "").replace(/^0+/, "");
+  const target = norm(re);
+  if (!target) return undefined;
+  return all.find((u) => norm(u.re) === target);
+}
