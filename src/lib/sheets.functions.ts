@@ -11,6 +11,34 @@ import {
 import { deleteInput, nowBR, recordInput, updateInput } from "./sheets-operations.server";
 import { requireRecordPermission } from "./record-permissions.server";
 
+const norm = (v?: string) => (v ?? "").toString().trim().toLocaleUpperCase("pt-BR");
+
+/** Chave de unicidade de um registro do Mapa Força. */
+function recordKey(r: {
+  data?: string;
+  vtr?: string;
+  modalidade?: string;
+  horaInicio?: string;
+  horaTermino?: string;
+  cidade?: string;
+}) {
+  return [r.data, r.vtr, r.modalidade, r.horaInicio, r.horaTermino, r.cidade].map(norm).join("|");
+}
+
+async function ensureNotDuplicate(
+  candidate: Parameters<typeof recordKey>[0],
+  ignoreId?: string,
+) {
+  const key = recordKey(candidate);
+  const all = await fetchAllRecords();
+  const dup = all.find((r) => r.id !== ignoreId && recordKey(r) === key);
+  if (dup) {
+    throw new Error(
+      `Já existe um registro idêntico cadastrado: VTR ${candidate.vtr} · ${candidate.modalidade} · ${candidate.data} · ${candidate.horaInicio}-${candidate.horaTermino}. O salvamento foi cancelado para evitar duplicidade.`,
+    );
+  }
+}
+
 export const getRecords = createServerFn({ method: "GET" }).handler(
   async () => {
     return await fetchAllRecords();
@@ -41,6 +69,7 @@ export const createRecord = createServerFn({ method: "POST" })
       );
     }
     */
+    await ensureNotDuplicate(data);
     const id =
       typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
@@ -103,6 +132,7 @@ export const updateRecord = createServerFn({ method: "POST" })
       );
     }
     */
+    await ensureNotDuplicate(data, data.id);
     const updated: RecordRow = {
       ...rec,
       cia: data.cia,
