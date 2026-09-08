@@ -33,7 +33,7 @@ export interface UserRow {
 
 export async function fetchAllUsers(): Promise<UserRow[]> {
   try {
-    const rows = await readRange(`${SHEET_USERS}!A2:I1000`);
+    const rows = await readRange(`${SHEET_USERS}!A2:I10000`);
     return rows
       .filter((r) => r.length > 0 && (r[3] ?? "").toString().trim() !== "")
       .map((r) => {
