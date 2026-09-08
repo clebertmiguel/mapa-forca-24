@@ -64,7 +64,7 @@ export async function readRange(range: string): Promise<string[][]> {
 }
 
 export async function fetchAllRecords(): Promise<RecordRow[]> {
-  const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
+  const rows = await readRange(`${SHEET_RECORDS}!A2:R10000`);
   return rows
     .filter((r) => r.length > 0)
     .map((r) => {
@@ -284,7 +284,7 @@ async function archiveRecord(rowValues: string[], deletedBy: string): Promise<vo
 
 /** Arquiva o registro na aba Excluidos e só então remove a linha de Records. */
 export async function deleteRecordById(id: string, deletedBy: string): Promise<boolean> {
-  const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
+  const rows = await readRange(`${SHEET_RECORDS}!A2:R10000`);
   const idx = rows.findIndex((row) => (row[0] ?? "").toString() === id);
   if (idx === -1) return false;
 
@@ -322,7 +322,7 @@ export async function findRecordById(id: string): Promise<RecordRow | undefined>
 }
 
 export async function updateRecordById(id: string, row: RecordRow): Promise<boolean> {
-  const rows = await readRange(`${SHEET_RECORDS}!A2:R1000`);
+  const rows = await readRange(`${SHEET_RECORDS}!A2:R10000`);
   const idx = rows.findIndex((sheetRow) => (sheetRow[0] ?? "").toString() === id);
   if (idx === -1) return false;
   const sheetRow = idx + 2;
