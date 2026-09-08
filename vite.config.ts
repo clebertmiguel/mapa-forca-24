@@ -3,13 +3,14 @@ import { nitro } from "nitro/vite";
 
 export default defineConfig({
   vite: {
+    base: "/mapa-forca-24/",
     plugins: [
       nitro({
         preset: "node-server",
       }),
     ],
   },
-  base: "/mapa-forca-24/",
+
   tanstackStart: {
     server: {
       entry: "server",
