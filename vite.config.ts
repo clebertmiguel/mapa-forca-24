@@ -2,19 +2,15 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   tanstackStart: {
-    server: { entry: "server" },
-
-    spa: {
-      enabled: true,
+    server: {
+      entry: "server",
     },
-  },
-
-  nitro: {
-    preset: "node-server",
-    output: {
-      dir: "dist",
-      serverDir: "dist/server",
-      publicDir: "dist/client",
+    prerender: {
+      enabled: true,
+      autoSubfolderIndex: true,
+      autoStaticPathsDiscovery: true,
+      crawlLinks: true,
+      failOnError: true,
     },
   },
 });
