@@ -132,6 +132,7 @@ export const updateRecord = createServerFn({ method: "POST" })
       );
     }
     */
+    await ensureNotDuplicate(data, data.id);
     const updated: RecordRow = {
       ...rec,
       cia: data.cia,
