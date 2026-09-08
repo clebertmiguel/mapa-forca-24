@@ -69,6 +69,7 @@ export const createRecord = createServerFn({ method: "POST" })
       );
     }
     */
+    await ensureNotDuplicate(data);
     const id =
       typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
