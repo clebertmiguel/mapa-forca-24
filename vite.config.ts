@@ -9,7 +9,7 @@ export default defineConfig({
       }),
     ],
   },
-
+  base: "/mapa-forca-24/",
   tanstackStart: {
     server: {
       entry: "server",
