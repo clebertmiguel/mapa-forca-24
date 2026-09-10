@@ -120,7 +120,7 @@ function Dashboard() {
   const [dayFilter, setDayFilter] = useState<"hoje" | "amanha">("hoje");
   const activeDate = dayFilter === "hoje" ? today : tomorrow;
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<keyof RecordRow>("horaInicio");
+  const [sortKey, setSortKey] = useState<keyof RecordRow>("cidade");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
