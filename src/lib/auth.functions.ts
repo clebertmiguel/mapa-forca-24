@@ -70,10 +70,12 @@ export const registerUser = createServerFn({ method: "POST" })
   .inputValidator((data) =>
     z.object({
       nome: z.string().min(2),
+      nomeGuerra: z.string().min(2),
       re: z.string().min(1),
       email: z.string().email(),
       telefone: z.string(),
       senha: z.string().min(4),
+      cia: z.enum(["1ª CIA PM", "2ª CIA PM", "3ª CIA PM", "4ª CIA PM", "CIA-FT", "EM"]),
     }).parse(data),
   )
   .handler(async ({ data }) => {
@@ -101,6 +103,8 @@ export const registerUser = createServerFn({ method: "POST" })
       senha: hashedPassword,
       grupo: "Usuario",
       ativo: "SIM",
+      cia: data.cia,
+      nomeGuerra: data.nomeGuerra.trim(),
     };
 
     await appendUser(newUser);

@@ -8,12 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { registerUser } from "@/lib/auth.functions";
 import pmLogo from "@/assets/pm-logo.png.asset.json";
 
 const schema = z.object({
   nome: z.string().min(2, "Nome muito curto"),
+  nomeGuerra: z.string().min(2, "Nome de guerra muito curto"),
+  cia: z.enum(["1ª CIA PM", "2ª CIA PM", "3ª CIA PM", "4ª CIA PM", "CIA-FT", "EM"], {
+    message: "Selecione uma CIA",
+  }),
   re: z.string().min(1, "Obrigatório"),
   email: z.string().email("E-mail inválido"),
   telefone: z.string().min(8, "Telefone inválido"),
@@ -26,6 +37,17 @@ export const Route = createFileRoute("/auth/register")({
   head: () => ({
     meta: [
       { title: "Cadastro · Mapa Força" },
+      {
+        name: "description",
+        content: "Cadastre seu acesso ao sistema Mapa Força Diário.",
+      },
+      { property: "og:title", content: "Cadastro · Mapa Força" },
+      {
+        property: "og:description",
+        content: "Cadastre seu acesso ao sistema Mapa Força Diário.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: RegisterPage,
@@ -48,6 +70,8 @@ function RegisterPage() {
     resolver: zodResolver(schema),
     defaultValues: {
       nome: "",
+      nomeGuerra: "",
+      cia: undefined,
       re: "",
       email: "",
       telefone: "",
@@ -90,8 +114,35 @@ function RegisterPage() {
         <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="nome">Nome Completo</Label>
-            <Input id="nome" {...register("nome")} />
+            <Input id="nome" autoComplete="name" {...register("nome")} />
             {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="nomeGuerra">Nome Guerra</Label>
+            <Input id="nomeGuerra" {...register("nomeGuerra")} />
+            {errors.nomeGuerra && <p className="text-xs text-destructive">{errors.nomeGuerra.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cia">CIA</Label>
+            <Select
+              value={watch("cia")}
+              onValueChange={(value) => setValue("cia", value as FormValues["cia"], { shouldValidate: true })}
+            >
+              <SelectTrigger id="cia" aria-invalid={Boolean(errors.cia)}>
+                <SelectValue placeholder="Selecione a CIA" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1ª CIA PM">1ª CIA PM</SelectItem>
+                <SelectItem value="2ª CIA PM">2ª CIA PM</SelectItem>
+                <SelectItem value="3ª CIA PM">3ª CIA PM</SelectItem>
+                <SelectItem value="4ª CIA PM">4ª CIA PM</SelectItem>
+                <SelectItem value="CIA-FT">CIA-FT</SelectItem>
+                <SelectItem value="EM">EM</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.cia && <p className="text-xs text-destructive">{errors.cia.message}</p>}
           </div>
 
           <div className="space-y-2">
