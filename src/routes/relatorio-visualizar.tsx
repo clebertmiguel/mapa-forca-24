@@ -17,18 +17,10 @@ import { getRecords } from "@/lib/sheets.functions";
 import { gerarRelatorioPdf } from "@/lib/pdf";
 import { gerarRelatorioExcel } from "@/lib/excel";
 import type { RecordRow } from "@/lib/sheets.server";
-import { CIDADE_ORDER } from "@/lib/sheets.server";
+import { CIA_ORDER, CIDADE_ORDER } from "@/lib/sheets.server";
 import pmLogo from "@/assets/pm-logo.png.asset.json";
 
 const recordsQuery = { queryKey: ["records"], queryFn: () => getRecords() };
-
-const CIA_ORDER = [
-  "1ª CIA PM",
-  "2ª CIA PM",
-  "3ª CIA PM",
-  "4ª CIA PM",
-  "EM",
-] as const;
 
 export const Route = createFileRoute("/relatorio-visualizar")({
   head: () => ({
@@ -120,7 +112,15 @@ function VisualizarRelatorio() {
     }
 
     const result: GrupoCIA[] = [];
-    for (const key of CIA_ORDER) {
+    const ciasEncontradas = Array.from(byCia.keys()).filter(Boolean);
+    const ciasOrdenadas = [
+      ...CIA_ORDER.filter((cia) => byCia.has(cia)),
+      ...ciasEncontradas
+        .filter((cia) => !CIA_ORDER.includes(cia))
+        .sort((a, b) => a.localeCompare(b, "pt-BR")),
+    ];
+
+    for (const key of ciasOrdenadas) {
       const rows = byCia.get(key) ?? [];
       if (rows.length === 0) continue;
 
