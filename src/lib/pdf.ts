@@ -14,7 +14,20 @@ const CIA_ORDER = [
   "3ª CIA PM",
   "4ª CIA PM",
   "EM",
+  "CIA-FT",
 ] as const;
+
+function ciasParaExportar(registros: RecordRow[]): string[] {
+  const encontradas = Array.from(
+    new Set(registros.map((r) => (r.cia || "").trim()).filter(Boolean)),
+  );
+  return [
+    ...CIA_ORDER.filter((cia) => encontradas.includes(cia)),
+    ...encontradas
+      .filter((cia) => !CIA_ORDER.includes(cia as (typeof CIA_ORDER)[number]))
+      .sort((a, b) => a.localeCompare(b, "pt-BR")),
+  ];
+}
 
 function countPoliciais(r: RecordRow): number {
   let n = 0;
@@ -85,7 +98,7 @@ export function gerarRelatorioPdf(
 
   let primeiroBloco = true;
 
-  for (const cia of CIA_ORDER) {
+  for (const cia of ciasParaExportar(registros)) {
     const rows = registros.filter((r) => (r.cia || "").trim() === cia);
     if (rows.length === 0) continue;
 
