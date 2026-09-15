@@ -15,6 +15,7 @@ export const USER_HEADERS = [
   "grupo",
   "ativo",
   "cia",
+  "nomeGuerra",
 ] as const;
 
 export type UserGroup = "Administrador" | "Oficiais" | "Supervisor" | "Usuario";
@@ -29,11 +30,12 @@ export interface UserRow {
   grupo: UserGroup;
   ativo: "SIM" | "NAO";
   cia?: string;
+  nomeGuerra?: string;
 }
 
 export async function fetchAllUsers(): Promise<UserRow[]> {
   try {
-    const rows = await readRange(`${SHEET_USERS}!A2:I10000`);
+    const rows = await readRange(`${SHEET_USERS}!A2:J10000`);
     return rows
       .filter((r) => r.length > 0 && (r[3] ?? "").toString().trim() !== "")
       .map((r) => {
@@ -60,7 +62,7 @@ export async function appendUser(user: UserRow): Promise<void> {
   const values = [USER_HEADERS.map((h) => (user as any)[h] ?? "")];
   // Usando um range que a API parece aceitar melhor para append: apenas o nome da aba
   await gatewayFetch(
-    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_USERS}!A2:I:append?valueInputOption=USER_ENTERED`,
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_USERS}!A2:J:append?valueInputOption=USER_ENTERED`,
     {
       method: "POST",
       body: JSON.stringify({ values }),
