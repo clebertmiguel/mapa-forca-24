@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import faviconAsset from "../assets/favicon-32.png.asset.json";
 import appleTouchAsset from "../assets/apple-touch-icon.png.asset.json";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -82,12 +83,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Mapa Força Diário · 24º BPM/I" },
       { name: "description", content: "Sistema de Gestão de Mapa Força Diário do 24º BPM/I." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
+      { property: "og:title", content: "Mapa Força Diário · 24º BPM/I" },
       { property: "og:description", content: "MAPA FORÇA DIÁRIO DO 24º BPM/I" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Lovable App" },
+      { name: "twitter:title", content: "Mapa Força Diário · 24º BPM/I" },
       { name: "twitter:description", content: "MAPA FORÇA DIÁRIO DO 24º BPM/I" },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bca9a44b-0400-41d4-a853-4bddb1298388/id-preview-0831e20d--7ec832b0-5a72-4154-9421-e7d2ff88c812.lovable.app-1782428394856.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bca9a44b-0400-41d4-a853-4bddb1298388/id-preview-0831e20d--7ec832b0-5a72-4154-9421-e7d2ff88c812.lovable.app-1782428394856.png" },
@@ -125,6 +126,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <Toaster richColors position="top-center" />
     </QueryClientProvider>
   );
 }
