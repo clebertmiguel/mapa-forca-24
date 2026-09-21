@@ -23,43 +23,55 @@ export const Route = createFileRoute("/auth/login")({
   head: () => ({
     meta: [
       { title: "Login · Mapa Força" },
+      { name: "description", content: "Acesse o Mapa Força Diário com suas credenciais." },
+      { property: "og:title", content: "Login · Mapa Força" },
+      { property: "og:description", content: "Acesse o Mapa Força Diário com suas credenciais." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: LoginPage,
 });
+
+function getLoginErrorMessage(error: Error) {
+  if (error.message.includes("Usuário não encontrado")) {
+    return "E-mail não cadastrado. Verifique o endereço informado ou faça seu cadastro.";
+  }
+
+  if (error.message.includes("Senha incorreta")) {
+    return "Senha incorreta. Digite novamente.";
+  }
+
+  return error.message || "Erro ao realizar login.";
+}
 
 function LoginPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const loginFn = useServerFn(login);
 
-  const mutation = useMutation({
-    mutationFn: (data: FormValues) => {
-      console.log("Mutation start with data:", data);
-      return loginFn({ data });
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      email: "",
+      password: "",
     },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (data: FormValues) => loginFn({ data }),
     onSuccess: (session) => {
-      console.log("Login success:", session);
       toast.success("Bem-vindo!");
       queryClient.setQueryData(["session"], session);
       navigate({ to: "/", replace: true });
     },
     onError: (e: Error) => {
-      console.error("Login mutation error:", e);
-      toast.error(e.message || "Erro ao realizar login");
+      toast.error(getLoginErrorMessage(e));
+      reset();
     },
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: {
-      email: "",
-      password: ""
-    }
-  });
-
   const onSubmit = (data: FormValues) => {
-    console.log("onSubmit manual trigger calling mutation.mutate");
     mutation.mutate(data);
   };
 
@@ -81,6 +93,7 @@ function LoginPage() {
             <Input 
               id="email" 
               type="text" 
+              autoComplete="email"
               {...register("email")} 
             />
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
@@ -91,6 +104,7 @@ function LoginPage() {
             <Input 
               id="password" 
               type="password" 
+              autoComplete="current-password"
               {...register("password")} 
             />
             {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
