@@ -51,7 +51,6 @@ export async function fetchAllUsers(): Promise<UserRow[]> {
   }
 }
 
-
 export async function findUserByEmail(email: string): Promise<UserRow | undefined> {
   const all = await fetchAllUsers();
   const target = email.trim().toLowerCase();
@@ -77,4 +76,50 @@ export async function findUserByRE(re: string): Promise<UserRow | undefined> {
   const target = norm(re);
   if (!target) return undefined;
   return all.find((u) => norm(u.re) === target);
+}
+
+export async function updateUser(id: string, user: UserRow): Promise<boolean> {
+  const rows = await readRange(`${SHEET_USERS}!A2:J10000`);
+  const idx = rows.findIndex((sheetRow) => (sheetRow[0] ?? "").toString() === id);
+  if (idx === -1) return false;
+  const sheetRow = idx + 2;
+  const values = [USER_HEADERS.map((h) => (user as any)[h] ?? "")];
+  await gatewayFetch(
+    `/spreadsheets/${SPREADSHEET_ID}/values/${SHEET_USERS}!A${sheetRow}:J${sheetRow}?valueInputOption=USER_ENTERED`,
+    { method: "PUT", body: JSON.stringify({ values }) },
+  );
+  return true;
+}
+
+export async function deleteUser(id: string): Promise<boolean> {
+  const rows = await readRange(`${SHEET_USERS}!A2:J10000`);
+  const idx = rows.findIndex((row) => (row[0] ?? "").toString() === id);
+  if (idx === -1) return false;
+
+  const metadata = await gatewayFetch(`/spreadsheets/${SPREADSHEET_ID}?fields=sheets.properties(sheetId,title)`);
+  const sheetId = metadata.sheets?.find((s: any) => s.properties?.title === SHEET_USERS)?.properties?.sheetId;
+  if (typeof sheetId !== "number") return false;
+
+  const startIndex = idx + 1; // 0-indexed onde A2 é 1
+  await gatewayFetch(
+    `/spreadsheets/${SPREADSHEET_ID}:batchUpdate`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        requests: [
+          {
+            deleteDimension: {
+              range: {
+                sheetId,
+                dimension: "ROWS",
+                startIndex,
+                endIndex: startIndex + 1,
+              },
+            },
+          },
+        ],
+      }),
+    },
+  );
+  return true;
 }

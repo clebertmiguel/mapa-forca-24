@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { findUserByEmail, findUserByRE, appendUser, type UserRow, type UserGroup } from "./auth.server";
+import { findUserByEmail, findUserByRE, appendUser, fetchAllUsers, updateUser, deleteUser, type UserRow, type UserGroup } from "./auth.server";
 import { setCookie, getCookie, deleteCookie } from "@tanstack/react-start/server";
 import bcrypt from "bcryptjs";
 
@@ -13,7 +13,6 @@ export interface SessionData {
   group: UserGroup;
   cia?: string;
 }
-
 
 export const login = createServerFn({ method: "POST" })
   .inputValidator((data) =>
@@ -38,7 +37,6 @@ export const login = createServerFn({ method: "POST" })
       group: user.grupo,
       cia: (user.cia ?? "").trim(),
     };
-
 
     // Usando cookie simples para sessão (em prod deve ser assinado/JWT)
     setCookie(SESSION_COOKIE, JSON.stringify(session), {
@@ -124,5 +122,83 @@ export const registerUser = createServerFn({ method: "POST" })
     }
 
     return { ok: true };
+  });
 
+export const updateUserAction = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z.object({
+      id: z.string(),
+      nome: z.string().min(2),
+      nomeGuerra: z.string().min(2),
+      re: z.string().min(1),
+      email: z.string().email(),
+      telefone: z.string(),
+      cia: z.string().optional(),
+      grupo: z.enum(["Administrador", "Oficiais", "Supervisor", "Usuario"]),
+      ativo: z.enum(["SIM", "NAO"]),
+    }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const cookie = getCookie(SESSION_COOKIE);
+    let session: SessionData | null = null;
+    if (cookie) {
+      try { session = JSON.parse(cookie) as SessionData; } catch {}
+    }
+    if (!session || session.group !== "Administrador") throw new Error("Acesso negado.");
+
+    const users = await fetchAllUsers();
+    const existing = users.find((u) => u.id === data.id);
+    if (!existing) throw new Error("Usuário não encontrado.");
+
+    const updatedUser: UserRow = {
+      ...existing,
+      ...data,
+      email: data.email.toLowerCase().trim(),
+      nomeGuerra: data.nomeGuerra.trim(),
+    };
+    await updateUser(data.id, updatedUser);
+    return { ok: true };
+  });
+
+export const deleteUserAction = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const cookie = getCookie(SESSION_COOKIE);
+    let session: SessionData | null = null;
+    if (cookie) {
+      try { session = JSON.parse(cookie) as SessionData; } catch {}
+    }
+    if (!session || session.group !== "Administrador") throw new Error("Acesso negado.");
+    
+    if (session.userId === data.id) throw new Error("Não é possível excluir o próprio usuário.");
+
+    const success = await deleteUser(data.id);
+    if (!success) throw new Error("Usuário não encontrado ou erro ao excluir.");
+    return { ok: true };
+  });
+
+export const resetPasswordAction = createServerFn({ method: "POST" })
+  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .handler(async ({ data }) => {
+    const cookie = getCookie(SESSION_COOKIE);
+    let session: SessionData | null = null;
+    if (cookie) {
+      try { session = JSON.parse(cookie) as SessionData; } catch {}
+    }
+    if (!session || session.group !== "Administrador") throw new Error("Acesso negado.");
+
+    const users = await fetchAllUsers();
+    const existing = users.find((u) => u.id === data.id);
+    if (!existing) throw new Error("Usuário não encontrado.");
+
+    const newPassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    const updatedUser: UserRow = {
+      ...existing,
+      senha: hashedPassword
+    };
+
+    await updateUser(data.id, updatedUser);
+    return { ok: true, newPassword };
   });
