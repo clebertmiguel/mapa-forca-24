@@ -86,7 +86,7 @@ export const registerUser = createServerFn({ method: "POST" })
     const sameRE = await findUserByRE(data.re);
     if (sameRE)
       throw new Error(
-        `O RE ${data.re} já está cadastrado para ${sameRE.nome || "outro usuário"}. Verifique os dados informados.`,
+        `O RE ${data.re} já consta na aba Users para ${sameRE.nome || "outro usuário"}, mesmo que o e-mail informado não esteja cadastrado. Confira também o RE na planilha.`,
       );
 
     const hashedEmail = data.email.toLowerCase().trim();

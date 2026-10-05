@@ -47,7 +47,12 @@ function authHeaders() {
 export async function gatewayFetch(path: string, init?: RequestInit) {
   const res = await fetch(`${GATEWAY}${path}`, {
     ...init,
-    headers: { ...authHeaders(), ...(init?.headers || {}) },
+    cache: "no-store",
+    headers: {
+      ...authHeaders(),
+      ...(init?.method === undefined || init.method === "GET" ? { "Cache-Control": "no-cache" } : {}),
+      ...(init?.headers || {}),
+    },
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
