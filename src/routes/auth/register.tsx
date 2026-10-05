@@ -83,7 +83,7 @@ function RegisterPage() {
   const telValue = watch("telefone");
 
   const formatRE = (val: string) => {
-    const clean = val.replace(/\D/g, "").substring(0, 7);
+    const clean = val.toUpperCase().replace(/[^0-9A-Z]/g, "").substring(0, 7);
     if (clean.length > 6) {
       return `${clean.substring(0, 6)}-${clean.substring(6)}`;
     }
@@ -153,9 +153,10 @@ function RegisterPage() {
               value={reValue}
               onChange={(e) => {
                 const formatted = formatRE(e.target.value);
-                setValue("re", formatted);
+                setValue("re", formatted, { shouldValidate: true });
               }}
               placeholder="999999-X"
+              autoCapitalize="characters"
             />
             {errors.re && <p className="text-xs text-destructive">{errors.re.message}</p>}
           </div>
