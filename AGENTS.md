@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep `seroval` pinned to the same version as `seroval-plugins` because mismatched releases break bundling on missing exports.
