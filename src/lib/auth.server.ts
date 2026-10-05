@@ -69,13 +69,25 @@ export async function appendUser(user: UserRow): Promise<void> {
   );
 }
 
-/** Procura usuário por RE (número funcional), ignorando espaços/zeros à esquerda. */
+/**
+ * Normaliza o RE sem perder o dígito verificador.
+ * Ex.: 012345-X e 12345X são equivalentes, mas 12345-X e 12345-0 não são.
+ */
+function normalizeRE(value: string): string {
+  const compact = (value ?? "").toString().trim().toUpperCase().replace(/[^0-9A-Z]/g, "");
+  if (compact.length < 2) return compact;
+
+  const checkDigit = compact.slice(-1);
+  const registrationNumber = compact.slice(0, -1).replace(/^0+/, "") || "0";
+  return `${registrationNumber}${checkDigit}`;
+}
+
+/** Procura usuário pelo número funcional e respectivo dígito verificador. */
 export async function findUserByRE(re: string): Promise<UserRow | undefined> {
   const all = await fetchAllUsers();
-  const norm = (v: string) => (v ?? "").toString().replace(/\D/g, "").replace(/^0+/, "");
-  const target = norm(re);
+  const target = normalizeRE(re);
   if (!target) return undefined;
-  return all.find((u) => norm(u.re) === target);
+  return all.find((u) => normalizeRE(u.re) === target);
 }
 
 export async function updateUser(id: string, user: UserRow): Promise<boolean> {
