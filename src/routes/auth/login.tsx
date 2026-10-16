@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { login } from "@/lib/auth.functions";
+import { login, requestPasswordReset } from "@/lib/auth.functions";
 import pmLogo from "@/assets/pm-logo.png.asset.json";
 
 const schema = z.object({
@@ -50,7 +50,7 @@ function LoginPage() {
   const queryClient = useQueryClient();
   const loginFn = useServerFn(login);
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, getValues, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       email: "",
@@ -69,6 +69,13 @@ function LoginPage() {
       toast.error(getLoginErrorMessage(e));
       reset();
     },
+  });
+
+  const forgotFn = useServerFn(requestPasswordReset);
+  const forgot = useMutation({
+    mutationFn: (email: string) => forgotFn({ data: { email, origin: window.location.origin } }),
+    onSuccess: () => toast.success("Se o e-mail estiver cadastrado, você receberá um link para alterar a senha."),
+    onError: (e: Error) => toast.error(e.message || "Erro ao enviar o e-mail."),
   });
 
   const onSubmit = (data: FormValues) => {
@@ -119,7 +126,26 @@ function LoginPage() {
           </Button>
         </form>
 
-        <div className="mt-6 text-center text-sm">
+        <div className="mt-3 text-center">
+          <Button
+            variant="link"
+            type="button"
+            className="text-pm-navy p-0 text-sm"
+            disabled={forgot.isPending}
+            onClick={() => {
+              const email = getValues("email").trim();
+              if (!z.string().email().safeParse(email).success) {
+                toast.error("Digite seu e-mail no campo acima e clique em Esqueci minha senha.");
+                return;
+              }
+              forgot.mutate(email);
+            }}
+          >
+            {forgot.isPending ? "Enviando..." : "Esqueci minha senha"}
+          </Button>
+        </div>
+
+        <div className="mt-4 text-center text-sm">
           <span className="text-muted-foreground">Não tem uma conta? </span>
           <Button variant="link" onClick={() => navigate({ to: "/auth/register" })} className="text-pm-navy p-0">
             Cadastre-se
