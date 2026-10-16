@@ -15,6 +15,7 @@ import { Route as NovoRouteImport } from './routes/novo'
 import { Route as RelatorioVisualizarRouteImport } from './routes/relatorio-visualizar'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthRedefinirSenhaRouteImport } from './routes/auth/redefinir-senha'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin/usuarios'
 
@@ -47,6 +48,11 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRedefinirSenhaRoute = AuthRedefinirSenhaRouteImport.update({
+  id: '/auth/redefinir-senha',
+  path: '/auth/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/relatorio-visualizar': typeof RelatorioVisualizarRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/auth/register': typeof AuthRegisterRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/relatorio-visualizar': typeof RelatorioVisualizarRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/auth/register': typeof AuthRegisterRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   '/relatorio-visualizar': typeof RelatorioVisualizarRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/auth/redefinir-senha': typeof AuthRedefinirSenhaRoute
   '/auth/register': typeof AuthRegisterRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/relatorio-visualizar'
     | '/admin'
     | '/auth/login'
+    | '/auth/redefinir-senha'
     | '/auth/register'
     | '/admin/usuarios'
   fileRoutesByTo: FileRoutesByTo
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | '/relatorio-visualizar'
     | '/admin'
     | '/auth/login'
+    | '/auth/redefinir-senha'
     | '/auth/register'
     | '/admin/usuarios'
   id:
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '/relatorio-visualizar'
     | '/_authenticated/admin'
     | '/auth/login'
+    | '/auth/redefinir-senha'
     | '/auth/register'
     | '/_authenticated/admin/usuarios'
   fileRoutesById: FileRoutesById
@@ -125,6 +137,7 @@ export interface RootRouteChildren {
   NovoRoute: typeof NovoRoute
   RelatorioVisualizarRoute: typeof RelatorioVisualizarRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthRedefinirSenhaRoute: typeof AuthRedefinirSenhaRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
 }
 
@@ -170,6 +183,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/login'
       fullPath: '/auth/login'
       preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/redefinir-senha': {
+      id: '/auth/redefinir-senha'
+      path: '/auth/redefinir-senha'
+      fullPath: '/auth/redefinir-senha'
+      preLoaderRoute: typeof AuthRedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/register': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   NovoRoute: NovoRoute,
   RelatorioVisualizarRoute: RelatorioVisualizarRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthRedefinirSenhaRoute: AuthRedefinirSenhaRoute,
   AuthRegisterRoute: AuthRegisterRoute,
 }
 export const routeTree = rootRouteImport
