@@ -17,7 +17,6 @@ export async function sendGmail(to: string, subject: string, html: string) {
   const raw = b64(
     [
       `To: ${to}`,
-      `From: ${hdr('Mapa Força')} <me>`,
       `Subject: ${hdr(subject)}`,
       'MIME-Version: 1.0',
       'Content-Type: text/html; charset="UTF-8"',
