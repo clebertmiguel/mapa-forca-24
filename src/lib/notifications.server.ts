@@ -5,6 +5,28 @@ import { Resend } from 'resend';
 
 const ADMIN_EMAIL = '24bpmidesenvolvimento@gmail.com'; // Novo e-mail de destino solicitado
 
+export async function sendPasswordResetEmail(to: string, nome: string, link: string) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error("Envio de e-mail não configurado.");
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({
+    from: process.env.RESEND_FROM || 'Mapa Força <onboarding@resend.dev>',
+    to: [to],
+    subject: 'Redefinição de senha - Mapa Força',
+    html: `
+      <div style="font-family: sans-serif; line-height: 1.5; color: #333;">
+        <h2 style="color: #002d56;">Redefinição de senha</h2>
+        <p>Olá, ${nome}. Recebemos um pedido para alterar sua senha.</p>
+        <p><a href="${link}" style="background:#002d56;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none;">Alterar minha senha</a></p>
+        <p style="font-size:12px;color:#666;">O link vale por 1 hora. Se você não solicitou, ignore este e-mail.</p>
+      </div>`,
+  });
+  if (error) {
+    console.error('[PasswordReset] Resend error:', error);
+    throw new Error("Não foi possível enviar o e-mail de redefinição.");
+  }
+}
+
 export async function sendNewUserAdminNotification(user: {
   nome: string;
   email: string;

@@ -177,6 +177,37 @@ export const deleteUserAction = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const requestPasswordReset = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z.object({ email: z.string().email(), origin: z.string().url() }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const user = await findUserByEmail(data.email);
+    if (!user || user.ativo !== "SIM") return { ok: true };
+    const { createResetToken } = await import("./password-reset.server");
+    const { sendPasswordResetEmail } = await import("./notifications.server");
+    const token = await createResetToken(user.id, user.senha ?? "");
+    const link = `${new URL(data.origin).origin}/auth/redefinir-senha?token=${encodeURIComponent(token)}`;
+    await sendPasswordResetEmail(user.email, user.nome, link);
+    return { ok: true };
+  });
+
+export const confirmPasswordReset = createServerFn({ method: "POST" })
+  .inputValidator((data) =>
+    z.object({ token: z.string().min(10), senha: z.string().min(4) }).parse(data),
+  )
+  .handler(async ({ data }) => {
+    const { parseResetToken, verifyResetToken } = await import("./password-reset.server");
+    const parsed = parseResetToken(data.token);
+    const invalid = "Link inválido ou expirado. Solicite uma nova redefinição.";
+    if (!parsed) throw new Error(invalid);
+    const users = await fetchAllUsers();
+    const user = users.find((u) => u.id === parsed.userId);
+    if (!user || !(await verifyResetToken(data.token, user.senha ?? ""))) throw new Error(invalid);
+    await updateUser(user.id, { ...user, senha: await bcrypt.hash(data.senha, 10) });
+    return { ok: true };
+  });
+
 export const resetPasswordAction = createServerFn({ method: "POST" })
   .inputValidator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ data }) => {
